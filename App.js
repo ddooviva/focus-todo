@@ -1,14 +1,26 @@
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
+import { useRef, useEffect, useState } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import LottieView from 'lottie-react-native';
+import { theme } from './color';
+import { BlurView } from 'expo-blur';
+import * as Haptics from 'expo-haptics';
 
 
+const window = {
+  width: Dimensions.get('window').width, height: Dimensions.get('window').height
+}
 
 export default function App() {
+
+
   const [toDos, setToDos] = useState({});
   const [inputT, setInputT] = useState("");
+  const [showLottie, setShowLottie] = useState(false); // 폭죽 표시 상태
+  const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
+
 
   const sorting = (a) => {
     const entries = Object.entries(a);
@@ -49,6 +61,8 @@ export default function App() {
     const newToDos = { ...toDos };
     newToDos[key].star = !newToDos[key].star;
     setToDos(sorting(newToDos));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+
   }
 
   const editTextStart = (key) => {
@@ -67,7 +81,19 @@ export default function App() {
   const checking = (key) => {
 /*     const key = event._dispatchInstances.child.key
  */    const newToDos = { ...toDos };
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+
     if (toDos[key].progress < 2) { toDos[key].progress = toDos[key].progress + 1 } else { toDos[key].progress = 0 }
+    if (newToDos[key].progress === 2 && newToDos[key].star) {
+      setShowLottie(true);
+      setTimeout(() => setShowLottie(false), 2000); // 3초 후 폭죽 숨기기
+      setAnimationKey(animationKey + 1); // 키를 변경하여 리렌더링
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        }, i * 300);
+      }
+    };
     setToDos(sorting(newToDos));
   }
   const addToDo = () => {
@@ -81,12 +107,36 @@ export default function App() {
   const inputText = (a) => (setInputT(a));
   console.log(toDos)
 
+
   return (
     <View style={styles.container}>
+      {showLottie && (<BlurView intensity={5} style={styles.blurContainer}>
+        <LottieView
+          key={animationKey} // 키를 사용하여 리렌더링
+
+          autoPlay
+          style={{
+            zIndex: 10,
+            position: "absolute",
+            top: 0,
+            left: '-30%',
+            right: 0,
+            bottom: 0,
+            width: window.width * 1.6,
+            height: window.height,
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          // Find more Lottie files at https://lottiefiles.com/featured
+          source={require('./assets/confatti1.json')}
+        ></LottieView>
+
+      </BlurView>
+      )}
       <View style={styles.header}>
-        <TouchableOpacity><AntDesign name="caretleft" size={24} color="black" /></TouchableOpacity>
+        <TouchableOpacity><AntDesign name="caretleft" size={24} color={theme.ddgrey} /></TouchableOpacity>
         <Text style={styles.date}> 2025.04.21 (월)</Text>
-        <TouchableOpacity><AntDesign name="caretright" size={24} color="black" /></TouchableOpacity>
+        <TouchableOpacity><AntDesign name="caretright" size={24} color={theme.ddgrey} /></TouchableOpacity>
       </View>
       <TextInput style={styles.inputBox}
         placeholder='오늘 할 일을 적어주세요'
@@ -99,18 +149,18 @@ export default function App() {
 
         <ScrollView >
           {Object.keys(toDos).map((key) =>
-            <View key={key} style={{ ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? "red" : toDos[key].star && toDos[key].progress === 2 ? "lightpink" : "lightgrey"), borderWidth: (toDos[key].star ? 1 : 0), borderColor: "red" }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color="black" /></TouchableOpacity>
-              {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none"), textDecorationStyle: "double", textDecorationColor: "bold" }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
-                <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
+            <View key={key} style={{ ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey) }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
+              {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
+                <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)
+              }
+
+              <StatusBar style="auto" />
             </View>
           )}
 
         </ScrollView>
       </View >
-
-
-      <StatusBar style="auto" />
     </View >
   );
 }
@@ -118,8 +168,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-
+    backgroundColor: theme.bg,
   },
   header: {
     width: "100%",
@@ -132,40 +181,54 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 20,
-    fontWeight: 600
+    fontWeight: 600,
+    color: theme.dddgrey
   },
   inputBox: {
     paddingVertical: 15,
     paddingHorizontal: 20,
-    margin: 10,
+    marginTop: 10,
     fontSize: 16,
-    color: "black",
+    color: theme.dddgrey,
     borderRadius: 20,
     borderWidth: 2,
     borderStyle: "dotted",
+    borderColor: theme.dgrey,
     marginHorizontal: 30
   },
   listContainer: {
     flex: 6,
-    paddingTop: 10,
-    marginBottom: 10,
-    height: '100%'
+    height: '100%',
+    paddingTop: 10
   },
   list: {
     flexDirection: "row",
-    paddingVertical: 15,
+    paddingVertical: 12,
     paddingHorizontal: 20,
     marginHorizontal: 30,
-    backgroundColor: "lightgrey",
-    margin: 10,
+    backgroundColor: theme.lightgrey,
+    margin: 5,
     borderRadius: 20,
     alignItems: "center",
-    height: 60
   },
   listText: {
+    fontWeight: 500,
     fontSize: 16,
     paddingVertical: 6,
-    width: '100%', height: '100%', textAlignVertical: 'bottom'
-
-  }
+    width: '100%', height: '100%', textAlignVertical: 'bottom',
+    color: theme.dddgrey
+  },
+  blurContainer: {
+    overflow: 'hidden',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: 400,
+    height: 1000,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1
+  },
 });
