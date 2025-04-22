@@ -10,6 +10,8 @@ import { usePageLocation } from './PageLocationContext'; // Context 훅 임포�
 
 export default function PagePrevious({ navigation }) {
     const { pageLocation, setPageLocation } = usePageLocation();
+    const [toDos, setToDos] = useState({});
+    console.log(toDos);
     if (pageLocation > -4) {
         console.log('prev')
         return (
@@ -23,18 +25,22 @@ export default function PagePrevious({ navigation }) {
                 <View style={styles.listContainer}>
 
                     <ScrollView >
-                        <View style={{ ...styles.list, backgroundColor: theme.llgrey }} >
-                            <Text style={styles.listText}>1</Text>
-                        </View>
-                        <View style={{ ...styles.list, backgroundColor: theme.llgrey }} >
-                            <Text style={styles.listText}>1</Text>
-                        </View><View style={{ ...styles.list, backgroundColor: theme.llgrey }} >
-                            <Text style={styles.listText}>1</Text>
-                        </View>
-                        <StatusBar style="auto" />
+                        {Object.keys(toDos).map((key) => {
+                            return TodayDate() === RealDate(key) ? (
+                                <View key={key} style={{
+                                    ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
+                                }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                    onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
+                                    {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
+                                        <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
+                                    <StatusBar style="auto" />
+                                </View>) : null
+                        }
+                        )}
 
                     </ScrollView>
                 </View >
+                <StatusBar style="auto" />
 
             </View >
         );

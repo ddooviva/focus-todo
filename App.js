@@ -14,7 +14,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { PageLocationProvider } from './PageLocationContext';
 import { usePageLocation } from './PageLocationContext'; // Context 훅 임포트
-
+import { RealDate, TodayDate } from './dateTranslator';
+import { ToDosProvider } from './ToDos';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -39,8 +40,7 @@ const window = {
 
 
 
-
-function HomeScreen({ navigation }) {
+export function HomeScreen({ navigation }) {
 
   const { pageLocation, setPageLocation } = usePageLocation(); // Context 사용
   if (pageLocation === 0) {
@@ -126,7 +126,7 @@ function HomeScreen({ navigation }) {
     const addToDo = () => {
       if (inputT !== "") {
         setInputT("");
-        const newToDos = { ...toDos, [Date.now()]: { text: inputT, progress: 0, edit: false, star: false } }
+        const newToDos = { ...toDos, [Number(Date.now())]: { text: inputT, progress: 0, edit: false, star: false } }
         console.log(newToDos)
         setToDos(sorting(newToDos));
       }
@@ -175,15 +175,17 @@ function HomeScreen({ navigation }) {
         <View style={styles.listContainer}>
 
           <ScrollView >
-            {Object.keys(toDos).map((key) =>
-              <View key={key} style={{ ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey) }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
-                {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
-                  <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)
-                }
-
-                <StatusBar style="auto" />
-              </View>
+            {Object.keys(toDos).map((key) => {
+              return TodayDate() === RealDate(key) ? (
+                <View key={key} style={{
+                  ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
+                }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
+                  {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
+                    <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
+                  <StatusBar style="auto" />
+                </View>) : null
+            }
             )}
 
           </ScrollView>
