@@ -4,48 +4,72 @@ import { useRef, useEffect, useState } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { theme } from './color';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { usePageLocation } from './PageLocationContext'; // Context 훅 임포트
-
+import { useToDos } from './ToDos';
+import { RealDate, TodayDate } from './dateTranslator';
+import LottieView from 'lottie-react-native';
+import * as Haptics from 'expo-haptics'
 
 export default function PagePrevious({ navigation }) {
     const { pageLocation, setPageLocation } = usePageLocation();
-    const [toDos, setToDos] = useState({});
-    console.log(toDos);
-    if (pageLocation > -4) {
-        console.log('prev')
-        return (
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    {pageLocation !== -3 ? <TouchableOpacity ><AntDesign name="caretleft" onPress={() => setPageLocation(pageLocation - 1)} size={24} color={theme.ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretleft" size={24} color={theme.lgrey} /></TouchableOpacity>}
-                    <Text style={styles.date} onLongPress={() => navigation.navigate('PageGraph')}> 2025.04.21 (월)</Text>
-                    <TouchableOpacity><AntDesign name="caretright" onPress={() => setPageLocation(pageLocation + 1)} size={24} color={theme.ddgrey} /></TouchableOpacity>
+    const { toDos, setToDos } = useToDos();
+
+
+    const previousToDo = Object.fromEntries(Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() + pageLocation));
+
+    console.log(pageLocation, previousToDo)
+    console.log("toDOs:", toDos)
+
+    console.log('prev')
+    const dateNum = () => {
+        const n = String(TodayDate() + pageLocation);
+        return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8)
+    };
+    return (
+        <View style={{ ...styles.container }}>
+            <View style={styles.header}>
+                {pageLocation !== -3 ? <TouchableOpacity ><AntDesign name="caretleft" onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} size={24} color={theme.ddgrey}></AntDesign></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretleft" size={24} color={theme.lgrey}></AntDesign></TouchableOpacity>}
+                <Text style={styles.date} onLongPress={() => navigation.navigate('PageGraph')}> {dateNum()}</Text>
+                <TouchableOpacity><AntDesign name="caretright" onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} size={24} color={theme.ddgrey}></AntDesign></TouchableOpacity>
+            </View>
+            {Object.keys(previousToDo).length === 0 ?
+                <View style={{ ...styles.listContainer, alignItems: 'center' }}>
+                    <Text style={styles.nodataText}>no data</Text>
+                    <LottieView
+                        key={Date.now()}// key는 LottieView에 직접 추가
+                        PageLocationProvider
+                        autoPlay
+                        source={require('./assets/nofound1.json')}
+                        style={{
+                            top: '-30%',
+                            width: '100%',
+                            height: '100%',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    ></LottieView>
                 </View>
-
+                :
                 <View style={styles.listContainer}>
-
-                    <ScrollView >
-                        {Object.keys(toDos).map((key) => {
-                            return TodayDate() === RealDate(key) ? (
+                    <ScrollView>
+                        {Object.keys(previousToDo).map((key) => {
+                            return (
                                 <View key={key} style={{
-                                    ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
-                                }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                    onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
-                                    {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
-                                        <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
-                                    <StatusBar style="auto" />
-                                </View>) : null
+                                    ...styles.list, backgroundColor: (previousToDo[key].star && previousToDo[key].progress !== 2 ? theme.llgrey : previousToDo[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (previousToDo[key].progress === 2 ? theme.dgrey : previousToDo[key].star && previousToDo[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
+                                }}>
+                                    <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                                        <MaterialCommunityIcons style={{ paddingRight: 10 }} name={previousToDo[key].progress === 0 ? "checkbox-blank-outline" : (previousToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey}></MaterialCommunityIcons></TouchableOpacity>
+                                    <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{previousToDo[key].text}</Text>
+                                </View>)
+                        })
                         }
-                        )}
-
                     </ScrollView>
-                </View >
-                <StatusBar style="auto" />
-
-            </View >
-        );
-    } else setPageLocation(-3);
-}
+                </View>
+            }
+            <StatusBar style="auto"></StatusBar>
+        </View >
+    )
+};
 
 
 const styles = StyleSheet.create({
@@ -101,6 +125,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1
-    },
+    }, nodataText: {
+        color: theme.grey,
+        fontSize: 60,
+        fontWeight: 700,
+        paddingTop: 60
+    }
 });
 

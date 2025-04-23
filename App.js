@@ -16,20 +16,25 @@ import { PageLocationProvider } from './PageLocationContext';
 import { usePageLocation } from './PageLocationContext'; // Context 훅 임포트
 import { RealDate, TodayDate } from './dateTranslator';
 import { ToDosProvider } from './ToDos';
+import { useToDos } from './ToDos';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
 
   return (
     <PageLocationProvider>
-      < NavigationContainer >
-        <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="PagePrevious" component={PagePrevious} options={{ animation: 'none', headerShown: false, gestureEnabled: false }} />
-          <Stack.Screen name="PageGraph" component={PageGraph} options={{ animation: 'none', headerShown: false }} />
-          <Stack.Screen name="PageNext" component={PageNext} options={{ animation: 'none', headerShown: false }} />
-        </Stack.Navigator>
-      </NavigationContainer >
+      <ToDosProvider>
+        < NavigationContainer>
+          <Stack.Navigator initialRouteName="Home">
+            <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="PagePrevious" component={PagePrevious} options={{ animation: 'none', headerShown: false, gestureEnabled: false }} />
+            <Stack.Screen name="PageGraph" component={PageGraph} options={{ animation: 'none', headerShown: false }} />
+            <Stack.Screen name="PageNext" component={PageNext} options={{ animation: 'none', headerShown: false }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ToDosProvider>
     </PageLocationProvider>
   );
 }
@@ -44,7 +49,8 @@ export function HomeScreen({ navigation }) {
 
   const { pageLocation, setPageLocation } = usePageLocation(); // Context 사용
   if (pageLocation === 0) {
-    const [toDos, setToDos] = useState({});
+    const { toDos, setToDos } = useToDos();
+
     const [inputT, setInputT] = useState("");
     const [showLottie, setShowLottie] = useState(false); // 폭죽 표시 상태
     const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
@@ -84,28 +90,40 @@ export function HomeScreen({ navigation }) {
       return sortedToDos;
     }
 
-    const giveStar = (key) => {
+    const giveStar = async (key) => {
       const newToDos = { ...toDos };
       newToDos[key].star = !newToDos[key].star;
       setToDos(sorting(newToDos));
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      await saveToDos(sorting(newToDos));
 
     }
 
-    const editTextStart = (key) => {
+    const editTextStart = async (key) => {
       const newToDos = { ...toDos };
       newToDos[key].edit = true;
       setToDos(sorting(newToDos));
+      await saveToDos(sorting(newToDos));
+
     }
 
-    const editTextEnd = (event, key) => {
-      const newToDos = { ...toDos };
-      newToDos[key].text = event.nativeEvent.text;
-      newToDos[key].edit = false;
-      setToDos(sorting(newToDos));
-      if (event.nativeEvent.text === "") { delete newToDos[key] } { return }
+    const editTextEnd = async (e, key) => {
+      e.persist();
+      if (e.nativeEvent.text.trim() === "") {
+        const newToDos = { ...toDos };
+        delete newToDos[key]
+        setToDos(sorting(newToDos));
+        await saveToDos(sorting(newToDos));
+      }
+      else {
+        const newToDos = { ...toDos };
+        newToDos[key].text = e.nativeEvent.text;
+        newToDos[key].edit = false;
+        setToDos(sorting(newToDos));
+        await saveToDos((sorting(newToDos)));
+      }
     }
-    const checking = (key) => {
+    const checking = async (key) => {
 /*     const key = event._dispatchInstances.child.key
  */    const newToDos = { ...toDos };
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
@@ -120,78 +138,99 @@ export function HomeScreen({ navigation }) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
           }, i * 300);
         }
-      };
+      } else null;
       setToDos(sorting(newToDos));
+      await saveToDos((sorting(newToDos)));
+
     }
-    const addToDo = () => {
+    const addToDo = async () => {
       if (inputT !== "") {
         setInputT("");
-        const newToDos = { ...toDos, [Number(Date.now())]: { text: inputT, progress: 0, edit: false, star: false } }
-        console.log(newToDos)
+        const newToDos = { ...toDos, [Number(Date.now())]: { text: inputT, progress: 0, edit: false, star: false, date: RealDate(Date.now()) + pageLocation } }
         setToDos(sorting(newToDos));
+        await saveToDos((sorting(newToDos)));
       }
     }
+
+    async function saveToDos(toSave) {
+      await AsyncStorage.setItem("@toDos", JSON.stringify(toSave))
+    }
+
+    console.log(toDos);
+
+    useEffect(() => {
+      async function loadToDos() {
+        const response = await AsyncStorage.getItem("@toDos")
+        if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
+      } /* loadToDos(); */
+      console.log("loaded")
+    }, [])
+
+    const dateNum = () => {
+      const n = String(TodayDate() + pageLocation);
+      return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8)
+    };
+
     const inputText = (a) => (setInputT(a));
-    console.log(toDos)
+    return <View style={styles.container}>
+      {showLottie && (<BlurView intensity={5} style={styles.blurContainer}>
+        <LottieView
+          key={animationKey} // 키를 사용하여 리렌더링
 
-    return (
-      <View style={styles.container}>
-        {showLottie && (<BlurView intensity={5} style={styles.blurContainer}>
-          <LottieView
-            key={animationKey} // 키를 사용하여 리렌더링
+          autoPlay
+          style={{
+            zIndex: 10,
+            position: "absolute",
+            top: 0,
+            left: '-30%',
+            right: 0,
+            bottom: 0,
+            width: window.width * 1.6,
+            height: window.height,
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          // Find more Lottie files at https://lottiefiles.com/featured
+          source={require('./assets/confatti1.json')}
+        ></LottieView>
 
-            autoPlay
-            style={{
-              zIndex: 10,
-              position: "absolute",
-              top: 0,
-              left: '-30%',
-              right: 0,
-              bottom: 0,
-              width: window.width * 1.6,
-              height: window.height,
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            // Find more Lottie files at https://lottiefiles.com/featured
-            source={require('./assets/confatti1.json')}
-          ></LottieView>
+      </BlurView>
+      )}
+      <View style={styles.header}>
+        <TouchableOpacity ><AntDesign name="caretleft" onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }} size={24} color={theme.ddgrey} /></TouchableOpacity>
+        <Text style={styles.date} onLongPress={() => navigation.navigate('PageGraph')}> {dateNum()}</Text>
+        <TouchableOpacity><AntDesign name="caretright" onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }} size={24} color={theme.ddgrey} /></TouchableOpacity>
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput style={styles.inputBox}
+          placeholder='오늘 할 일을 적어주세요'
+          onSubmitEditing={addToDo}
+          onChangeText={(a) => inputText(a)}
+          value={inputT}>
+        </TextInput>
+      </View>
+      <View style={styles.listContainer}>
 
-        </BlurView>
-        )}
-        <View style={styles.header}>
-          <TouchableOpacity ><AntDesign name="caretleft" onPress={() => setPageLocation(pageLocation - 1)} size={24} color={theme.ddgrey} /></TouchableOpacity>
-          <Text style={styles.date} onLongPress={() => navigation.navigate('PageGraph')}> 2025.04.21 (월)</Text>
-          <TouchableOpacity><AntDesign name="caretright" onPress={() => setPageLocation(pageLocation + 1)} size={24} color={theme.ddgrey} /></TouchableOpacity>
-        </View>
-        <View style={styles.inputContainer}>
-          <TextInput style={styles.inputBox}
-            placeholder='오늘 할 일을 적어주세요'
-            onSubmitEditing={addToDo}
-            onChangeText={(a) => inputText(a)}
-            value={inputT}>
-          </TextInput>
-        </View>
-        <View style={styles.listContainer}>
+        <ScrollView >
+          {Object.keys(toDos).map((key) => {
+            return TodayDate() === toDos[key].date ? (
+              <View key={key} style={{
+                ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
+              }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
+                {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
+                  <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
+                <StatusBar style="auto" />
+              </View>) : null
+          }
+          )}
+        </ScrollView>
+        <Text style={{
+          color: 'red'
+        }}>{(AsyncStorage.getItem("@toDOs"))}</Text>
 
-          <ScrollView >
-            {Object.keys(toDos).map((key) => {
-              return TodayDate() === RealDate(key) ? (
-                <View key={key} style={{
-                  ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
-                }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
-                  {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
-                    <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
-                  <StatusBar style="auto" />
-                </View>) : null
-            }
-            )}
-
-          </ScrollView>
-        </View >
       </View >
-    );
+    </View >
   } else if (pageLocation < 0) { return <PagePrevious></PagePrevious> } else if (pageLocation > 0) { return <PageNext></PageNext> }
 }
 
