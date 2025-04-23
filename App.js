@@ -44,17 +44,24 @@ const window = {
 }
 
 
-
 export function HomeScreen({ navigation }) {
-
+  const dateNum = () => {
+    const n = String(TodayDate() + pageLocation);
+    const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
+    const dayOfWeek = date.getDay();
+    const days = ["일", "월", "화", "수", "목", "금", "토"];
+    console.log(dayOfWeek);
+    return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8) + " (" + days[dayOfWeek] + ")"
+  };
   const { pageLocation, setPageLocation } = usePageLocation(); // Context 사용
   if (pageLocation === 0) {
+
     const { toDos, setToDos } = useToDos();
 
     const [inputT, setInputT] = useState("");
     const [showLottie, setShowLottie] = useState(false); // 폭죽 표시 상태
     const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
-
+    const [achiveNum, setAchiveNum] = useState(0);
     const sorting = (a) => {
       const entries = Object.entries(a);
 
@@ -140,6 +147,11 @@ export function HomeScreen({ navigation }) {
         }
       } else null;
       setToDos(sorting(newToDos));
+      setAchiveNum(() => {
+        const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
+        console.log(num)
+        return num;
+      });
       await saveToDos((sorting(newToDos)));
 
     }
@@ -149,6 +161,11 @@ export function HomeScreen({ navigation }) {
         const newToDos = { ...toDos, [Number(Date.now())]: { text: inputT, progress: 0, edit: false, star: false, date: RealDate(Date.now()) + pageLocation } }
         setToDos(sorting(newToDos));
         await saveToDos((sorting(newToDos)));
+        setAchiveNum(() => {
+          const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
+          console.log(num)
+          return num;
+        });
       }
     }
 
@@ -156,24 +173,38 @@ export function HomeScreen({ navigation }) {
       await AsyncStorage.setItem("@toDos", JSON.stringify(toSave))
     }
 
-    console.log(toDos);
 
     useEffect(() => {
       async function loadToDos() {
         const response = await AsyncStorage.getItem("@toDos")
         if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
-      } /* loadToDos(); */
-      console.log("loaded")
+      } loadToDos()
     }, [])
 
-    const dateNum = () => {
-      const n = String(TodayDate() + pageLocation);
-      return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8)
-    };
 
     const inputText = (a) => (setInputT(a));
-    return <View style={styles.container}>
-      {showLottie && (<BlurView intensity={5} style={styles.blurContainer}>
+
+    return <View style={{ ...styles.container, backgroundColor: "transparent" }}>
+      <LottieView
+        key={Date.now()}// key는 LottieView에 직접 추가
+        PageLocationProvider
+        autoPlay
+        source={require('./assets/wave2.json')}
+        style={{
+          position: 'absolute',
+          top: (-1050 - 600 * achiveNum) / 667 * window.height,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: -5,
+          width: '150%',
+          height: '500%',
+          backgroundColor: "white",
+        }}
+      ></LottieView>
+      <View style={{ flexDirection: "column", justifyContent: "flex-end", backgroundColor: "black", position: 'absolute', bottom: 0, width: '100%', height: 500 / 667 * window.height * achiveNum, zIndex: -5 }} />
+
+      {showLottie && (<BlurView intensity={5} style={{ ...styles.blurContainer, zIndex: 2 }}>
         <LottieView
           key={animationKey} // 키를 사용하여 리렌더링
 
@@ -197,9 +228,13 @@ export function HomeScreen({ navigation }) {
       </BlurView>
       )}
       <View style={styles.header}>
-        <TouchableOpacity ><AntDesign name="caretleft" onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }} size={24} color={theme.ddgrey} /></TouchableOpacity>
-        <Text style={styles.date} onLongPress={() => navigation.navigate('PageGraph')}> {dateNum()}</Text>
-        <TouchableOpacity><AntDesign name="caretright" onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }} size={24} color={theme.ddgrey} /></TouchableOpacity>
+        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.ddgrey} /></TouchableOpacity>
+        <TouchableOpacity onLongPress={() => navigation.navigate('PageGraph')}>
+          <View style={{ backgroundColor: theme.dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
+            <Text style={{ ...styles.date, color: theme.bg }} >{dateNum()}</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme.ddgrey} /></TouchableOpacity>
       </View>
       <View style={styles.inputContainer}>
         <TextInput style={styles.inputBox}
@@ -225,10 +260,7 @@ export function HomeScreen({ navigation }) {
           }
           )}
         </ScrollView>
-        <Text style={{
-          color: 'red'
-        }}>{(AsyncStorage.getItem("@toDOs"))}</Text>
-
+        <Text onPress={() => { AsyncStorage.clear().then(setToDos({})) }} style={{ color: "red", fontSize: 100 }}>다지우기</Text>
       </View >
     </View >
   } else if (pageLocation < 0) { return <PagePrevious></PagePrevious> } else if (pageLocation > 0) { return <PageNext></PageNext> }
@@ -301,6 +333,5 @@ const styles = StyleSheet.create({
     height: 1000,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1
   },
 });

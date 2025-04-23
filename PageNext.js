@@ -17,8 +17,12 @@ export default function PageNext({ navigation }) {
     const [inputT, setInputT] = useState("");
     const { pageLocation, setPageLocation } = usePageLocation();
     const { toDos, setToDos } = useToDos();
+
     const nextToDo = Object.fromEntries(Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() + pageLocation));
-    console.log(toDos)
+
+    async function saveToDos(toSave) {
+        await AsyncStorage.setItem("@toDos", JSON.stringify(toSave))
+    }
     const sorting = (a) => {
         const entries = Object.entries(a);
 
@@ -53,42 +57,71 @@ export default function PageNext({ navigation }) {
         const sortedToDos = Object.fromEntries(sortedEntries);
         return sortedToDos;
     }
-    const giveStar = (key) => {
+
+    const checking = async (key) => {
+        /*     const key = event._dispatchInstances.child.key
+         */    const newToDos = { ...toDos };
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+
+        if (toDos[key].progress < 2) { toDos[key].progress = toDos[key].progress + 1 } else { toDos[key].progress = 0 }
+        setToDos(sorting(newToDos));
+        await saveToDos(sorting(newToDos));
+        console.log(sorting(newToDos));
+        setAchiveNum(() => {
+            const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
+            console.log(num)
+            return num;
+        });
+    }
+    const giveStar = async (key) => {
         const newToDos = { ...toDos };
         newToDos[key].star = !newToDos[key].star;
         setToDos(sorting(newToDos));
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        await saveToDos(sorting(newToDos));
     }
-    const editTextStart = (key) => {
+    const editTextStart = async (key) => {
         const newToDos = { ...toDos };
         newToDos[key].edit = true;
         setToDos(sorting(newToDos));
+        await saveToDos(sorting(newToDos));
+
     }
-    const editTextEnd = (event, key) => {
+    const editTextEnd = async (event, key) => {
         const newToDos = { ...toDos };
+        event.persist();
         newToDos[key].text = event.nativeEvent.text;
         newToDos[key].edit = false;
         setToDos(sorting(newToDos));
+        await saveToDos(sorting(newToDos));
         if (event.nativeEvent.text === " ") { delete newToDos[key] } { return }
+
     }
-    const addToDo = () => {
+    const addToDo = async () => {
         if (inputT !== "") {
             setInputT("");
             const newToDos = { ...toDos, [Number(Date.now())]: { text: inputT, progress: 0, edit: false, star: false, date: RealDate(Date.now()) + pageLocation } }
             setToDos(sorting(newToDos));
+            await saveToDos(sorting(newToDos));
         }
     }
     const dateNum = () => {
         const n = String(TodayDate() + pageLocation);
-        return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8)
+        const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
+        const dayOfWeek = date.getDay();
+        const days = ["일", "월", "화", "수", "목", "금", "토"];
+        console.log(dayOfWeek);
+        return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8) + " (" + days[dayOfWeek] + ")"
     };
     const inputText = (a) => (setInputT(a));
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity ><AntDesign name="caretleft" onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }} size={24} color={theme.ddgrey} /></TouchableOpacity>
-                <Text style={styles.date} onLongPress={() => navigation.navigate('PageGraph')}> {dateNum()}</Text>
-                {pageLocation !== +3 ? <TouchableOpacity ><AntDesign name="caretright" onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }} size={24} color={theme.ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretright" size={24} color={theme.lgrey} /></TouchableOpacity>}
+                <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.ddgrey} /></TouchableOpacity>
+                <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme.dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
+                    <Text style={styles.date}>{dateNum()}</Text>
+                </View>
+                {pageLocation !== +7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme.ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretright" size={24} color={theme.lgrey} /></TouchableOpacity>}
             </View>
             <View style={styles.inputContainer}>
                 <TextInput style={styles.inputBox}
