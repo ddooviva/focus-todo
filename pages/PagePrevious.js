@@ -118,7 +118,7 @@ export default function PagePrevious({ }) {
                                 </ScrollView>
                             </View>
                     }
-                    <StatusBar style="auto"></StatusBar>
+                    <StatusBar style="dark"></StatusBar>
                 </View >
             </PanGestureHandler>
         </GestureHandlerRootView >

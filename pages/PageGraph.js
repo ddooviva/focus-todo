@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
+import { ScrollView, StyleSheet, Text, Modal, Button, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { useRef, useEffect, useState } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -14,10 +14,9 @@ import GraphWeek from './GraphWeek'
 import { useToDos } from '../ToDos';
 import { TodayDate } from '../dateTranslator';
 
-export default function PageGraph({ navigation, route }) {
-    console.log(route); // route 확인
-    const { consecutiveDays = 0 } = route.params || {}; // 기본값을 0으로 설정
-
+export default function PageGraph({ navigation }) {
+    const [modal1Visible, setModal1Visible] = useState(false);
+    const [modal2Visible, setModal2Visible] = useState(false);
     const [showGraphWeek, setShowGraphWeek] = useState(true);
     const { toDos, setToDos } = useToDos();
     const achiveNumD = (dateMinusNum) => {
@@ -52,13 +51,48 @@ export default function PageGraph({ navigation, route }) {
                 }}
             ></LottieView>
             <View style={styles.header}>
-                <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} ><AntDesign name="infocirlceo" size={24} color={theme.bg} /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setModal1Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} ><AntDesign name="infocirlceo" size={24} color={theme.bg} /></TouchableOpacity>
+                <Modal
+                    animationType='fade'
+                    transparent={true}
+                    visible={modal1Visible}
+                    onRequestClose={() => setModal1Visible(false)}
+                >
+                    <BlurView intensity={10} style={styles.container} tint='systemThinMaterial'></BlurView>
+                    <View style={styles.modal1View}>
+                        <Text style={styles.modal1Text}>앱 이름: Focus Todo</Text>
+                        <Text style={styles.modal1Text}>버전: 1.0.0</Text>
+                        <Text style={styles.modal1Text}>개발자: DDoOviva</Text>
+                        <Text style={styles.modal1Text}>연락처: abu135790@gmail.com</Text>
+                        <Text style={styles.modal1Text}></Text>
+                        <TouchableOpacity hitSlop={{ top: 1000, bottom: 100, left: 40, right: 40 }} onPress={() => setModal1Visible(false)}>
+                            <AntDesign name="closecircleo" size={24} color={theme.dddgrey}></AntDesign>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
                 <TouchableOpacity onLongPress={() => navigation.navigate('Home')}>
                     <View style={{ backgroundColor: theme.bg, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
                         <Text style={{ ...styles.date }} > 분석 & 통계 </Text>
                     </View>
                 </TouchableOpacity>
-                <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}  ><AntDesign name="setting" size={24} color={theme.bg} /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setModal2Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}  ><AntDesign name="setting" size={24} color={theme.bg} /></TouchableOpacity>
+                <Modal
+                    animationType='fade'
+                    transparent={true}
+                    visible={modal2Visible}
+                    onRequestClose={() => setModal2Visible(false)}
+                >
+                    <BlurView intensity={10} style={styles.container} tint='systemThinMaterial'></BlurView>
+                    <View style={styles.modal2View}>
+                        <Text style={styles.modal2Text}> 업데이트를 기다려주세요 ...</Text>
+                        <Text style={styles.modal2Text}> (테마 변경 추가 예정)</Text>
+                        <Text style={styles.modal2Text}> (애니메이션 토글 추가 예정)</Text>
+                        <Text></Text>
+                        <TouchableOpacity hitSlop={{ top: 1000, bottom: 100, left: 40, right: 40 }} onPress={() => setModal2Visible(false)}>
+                            <AntDesign name="closecircleo" size={24} color={theme.dddgrey}></AntDesign>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
             </View >
             <View style={styles.cardContainer}>
                 <ScrollView>
@@ -81,16 +115,22 @@ export default function PageGraph({ navigation, route }) {
                                     <Text style={{ fontSize: 16, color: theme.bg, fontWeight: "bold" }}>Month</Text>
                                 </View>
                             </TouchableOpacity></View>
-                        {showGraphWeek ? <GraphWeek /> : <Text>Monthhhh</Text>}
+                        {showGraphWeek ? <GraphWeek /> : <View style={{ height: 190, justifyContent: 'center', flex: 1 }}><Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text></View>}
                     </BlurView>
 
                     <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
-                        <Text style={styles.contentText1}>연속 작업 일 수는 <Text style={styles.contentText2}>{consecutiveDays}</Text>일 입니다. </Text>
+                        <Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text>
+                        {/*  <Text style={styles.contentText1}>연속 작업 일 수는 <Text style={styles.contentText2}>188</Text>일 입니다. </Text> */}
                     </BlurView>
                     <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
-                        <Text style={styles.contentText1}>사용 초반에 비해 실행력이 <Text style={styles.contentText2}>40%</Text> 늘어났습니다.</Text>
+
+                        <Text style={styles.contentText1}></Text>
+                        <Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text>
+                        <Text style={styles.contentText1}></Text>
+
+                        {/* <Text style={styles.contentText1}>사용 초반에 비해 실행력이 <Text style={styles.contentText2}>40%</Text> 늘어났습니다.</Text>
                         <Text style={styles.contentText1} onPress={() => changeGoal()}>초기 목표에 도달했습니다. 완벽합니다. </Text>
-
+ */}
                     </BlurView>
                 </ScrollView>
             </View>
@@ -148,5 +188,36 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: 1, height: 1 }, // 테두리 두께
         textShadowRadius: 1, color: theme.dddgrey,
         fontSize: 18
+    },
+    modal1View: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        backgroundColor: theme.bg,
+        position: 'absolute',
+        padding: 20,
+        top: 50,
+        left: 40,
+    },
+    modal2View: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        backgroundColor: theme.bg,
+        position: 'absolute',
+        padding: 20,
+        top: 50,
+        right: 40,
+    },
+    modal1Text: {
+        fontWeight: '600',
+        margin: 4,
+        fontSize: 14
+    },
+
+    modal2Text: {
+        fontWeight: '600',
+        margin: 4,
+        fontSize: 14
     }
 })

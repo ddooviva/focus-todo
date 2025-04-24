@@ -147,7 +147,10 @@ export default function PageNext({ }) {
                         <TextInput style={styles.inputBox}
                             placeholder='해야 할 일을 적어주세요' onSubmitEditing={() => { addToDo(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
                             onChangeText={(a) => inputText(a)}
-                            value={inputT}>
+                            value={inputT}
+                            blurOnSubmit={false}
+                        >
+
                         </TextInput>
                     </View>
                     <View style={styles.listContainer}>
@@ -161,12 +164,12 @@ export default function PageNext({ }) {
                                         {!nextToDo[key].edit ?
                                             <Text style={{ ...styles.listText, textDecorationLine: (nextToDo[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{nextToDo[key].text}</Text> :
                                             <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={nextToDo[key].text}></TextInput>}
-                                        <StatusBar style="dark" />
                                     </View>)
                             }
                             )}
                         </ScrollView>
                     </View >
+                    <StatusBar style="dark" />
                 </View >
             </PanGestureHandler>
         </GestureHandlerRootView >

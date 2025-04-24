@@ -61,8 +61,12 @@ export function HomeScreen({ navigation }) {
       if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
     } loadToDos()
   }, [])
-
+  useEffect(() => setAchiveNum(() => {
+    const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
+    return num;
+  }), [toDos])
   console.log(toDos)
+
   useEffect(() => {
     const checkFirstLaunch = async () => {
       const isFirstLaunch = await AsyncStorage.getItem('isFirstLaunch');
@@ -87,10 +91,8 @@ export function HomeScreen({ navigation }) {
     const days = ["일", "월", "화", "수", "목", "금", "토"];
     return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8) + " (" + days[dayOfWeek] + ")"
   };
+
   if (pageLocation === 0) {
-
-
-
     const onSwipe = (event) => {
       if (event.nativeEvent.translationX > 50) {
         const countMinus = (a) => a - 1;
@@ -139,6 +141,7 @@ export function HomeScreen({ navigation }) {
       return sortedToDos;
     }
 
+
     const giveStar = async (key) => {
       const newToDos = { ...toDos };
       newToDos[key].star = !newToDos[key].star;
@@ -180,7 +183,7 @@ export function HomeScreen({ navigation }) {
       if (toDos[key].progress < 2) { toDos[key].progress = toDos[key].progress + 1 } else { toDos[key].progress = 0 }
       if (newToDos[key].progress === 2 && newToDos[key].star) {
         setShowLottie(true);
-        setTimeout(() => setShowLottie(false), 2000); // 3초 후 폭죽 숨기기
+        setTimeout(() => setShowLottie(false), 1900); // 3초 후 폭죽 숨기기
         setAnimationKey(animationKey + 1); // 키를 변경하여 리렌더링
         for (let i = 0; i < 3; i++) {
           setTimeout(() => {
@@ -189,12 +192,7 @@ export function HomeScreen({ navigation }) {
         }
       } else null;
       setToDos(sorting(newToDos));
-      setAchiveNum(() => {
-        const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
-        return num;
-      });
       await saveToDos((sorting(newToDos)));
-
     }
     const addToDo = async () => {
       if (inputT !== "") {
@@ -202,10 +200,6 @@ export function HomeScreen({ navigation }) {
         const newToDos = { ...toDos, [Number(Date.now())]: { text: inputT, progress: 0, edit: false, star: false, date: RealDate(Date.now()) + pageLocation } }
         setToDos(sorting(newToDos));
         await saveToDos((sorting(newToDos)));
-        setAchiveNum(() => {
-          const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
-          return num;
-        });
       }
     }
 
@@ -273,7 +267,9 @@ export function HomeScreen({ navigation }) {
             placeholder='오늘 할 일을 적어주세요'
             onSubmitEditing={addToDo}
             onChangeText={(a) => inputText(a)}
-            value={inputT}>
+            value={inputT}
+            blurOnSubmit={false}
+          >
           </TextInput>
         </View>
         <View style={styles.listContainer}>
@@ -287,13 +283,12 @@ export function HomeScreen({ navigation }) {
                   onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
                   {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
                     <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
-                  <StatusBar style="dark" />
                 </View>) : null
             }
             )}
           </ScrollView>
-          <Text onPress={() => { AsyncStorage.clear().then(setToDos({})) }} style={{ color: "red", fontSize: 100 }}>다지우기</Text>
         </View >
+        <StatusBar style="dark" />
       </View >
     </PanGestureHandler>
     </GestureHandlerRootView>
@@ -336,7 +331,7 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 20,
     height: '100%',
-    paddingTop: 10
+    paddingVertical: 10
   },
   list: {
     flexDirection: "row",
