@@ -46,7 +46,7 @@ export default GraphWeek = () => {
                         },]
                 }}
                 width={Dimensions.get("window").width} // from react-native
-                height={190}
+                height={220}
                 withVerticalLines={false}
                 withHorizontalLines={true}
                 fromZero

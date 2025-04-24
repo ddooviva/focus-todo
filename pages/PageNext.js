@@ -161,7 +161,7 @@ export default function PageNext({ }) {
                                         {!nextToDo[key].edit ?
                                             <Text style={{ ...styles.listText, textDecorationLine: (nextToDo[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{nextToDo[key].text}</Text> :
                                             <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={nextToDo[key].text}></TextInput>}
-                                        <StatusBar style="auto" />
+                                        <StatusBar style="dark" />
                                     </View>)
                             }
                             )}

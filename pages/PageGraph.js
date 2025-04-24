@@ -11,20 +11,26 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { usePageLocation } from '../PageLocationContext'; // Context 훅 임포트
 import GraphWeek from './GraphWeek'
+import { useToDos } from '../ToDos';
+import { TodayDate } from '../dateTranslator';
 
-function getDayFromDate(dateString) {
-    // YYYYMMDD 형식의 문자열을 Date 객체로 변환
-    const year = parseInt(dateString.slice(0, 4), 10);
-    const month = parseInt(dateString.slice(4, 6), 10) - 1; // 월은 0부터 시작
-    const day = parseInt(dateString.slice(6, 8), 10);
+export default function PageGraph({ navigation, route }) {
+    console.log(route); // route 확인
+    const { consecutiveDays = 0 } = route.params || {}; // 기본값을 0으로 설정
 
-    const date = new Date(year, month, day); // Date 객체 생성
-    const dayOfWeek = date.getDay(); // 요일 숫자 (0: 일요일, 1: 월요일, ..., 6: 토요일)
-    console.log
-    return dayOfWeek;
-}
-export default function PageGraph({ navigation }) {
-    const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
+    const [showGraphWeek, setShowGraphWeek] = useState(true);
+    const { toDos, setToDos } = useToDos();
+    const achiveNumD = (dateMinusNum) => {
+        const a = (Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length === 0) ? 0 :
+            Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate() - dateMinusNum).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length
+        return a;
+    };
+    const averageAchiveNumD = () => {
+
+        return ((achiveNumD(7) + achiveNumD(6) + achiveNumD(5) + achiveNumD(4) + achiveNumD(3) + achiveNumD(2) + achiveNumD(1)) / 7).toFixed(3)
+    }
+
+    const changeGoal = () => { };
 
     return (
         <View style={styles.container}>
@@ -40,8 +46,8 @@ export default function PageGraph({ navigation }) {
                     left: 0,
                     right: 0,
                     zIndex: -5,
-                    width: '100%',
-                    height: '100%',
+                    width: '180%',
+                    height: '110%',
                     backgroundColor: theme.dddgrey
                 }}
             ></LottieView>
@@ -57,16 +63,34 @@ export default function PageGraph({ navigation }) {
             <View style={styles.cardContainer}>
                 <ScrollView>
                     <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
-                        <GraphWeek />
+                        <Text style={styles.contentText1}>지난 7일간의 과제 달성률은 <Text style={styles.contentText2}>{averageAchiveNumD() * 100}%</Text> 입니다.</Text>
+                        {(averageAchiveNumD > 0.8) ? <Text style={styles.contentText1}> 대단해요 !</Text> : null}
+                    </BlurView>
+                    <BlurView intensity={40} style={{ ...styles.card }} tint='systemThinMaterial'>
+                        <View style={{
+                            flex: 1, flexDirection: 'row', justifyContent: 'flex-start', width: '100 %', padding: 20, paddingVertical: -10
+
+                        }}>
+                            <TouchableOpacity onPress={() => setShowGraphWeek(true)}>
+                                <View style={{ backgroundColor: theme.dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, marginRight: 6 }}>
+                                    <Text style={{ fontSize: 16, color: theme.bg, fontWeight: "bold" }}>Week</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setShowGraphWeek(false)}>
+                                <View style={{ backgroundColor: theme.dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
+                                    <Text style={{ fontSize: 16, color: theme.bg, fontWeight: "bold" }}>Month</Text>
+                                </View>
+                            </TouchableOpacity></View>
+                        {showGraphWeek ? <GraphWeek /> : <Text>Monthhhh</Text>}
+                    </BlurView>
+
+                    <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
+                        <Text style={styles.contentText1}>연속 작업 일 수는 <Text style={styles.contentText2}>{consecutiveDays}</Text>일 입니다. </Text>
                     </BlurView>
                     <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
-                        <Text style={styles.contentText1}>dkdkd</Text>
-                    </BlurView>
-                    <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
-                        <Text style={styles.contentText1}>dkdkd</Text>
-                    </BlurView>
-                    <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
-                        <Text style={styles.contentText1}>dkdkd</Text>
+                        <Text style={styles.contentText1}>사용 초반에 비해 실행력이 <Text style={styles.contentText2}>40%</Text> 늘어났습니다.</Text>
+                        <Text style={styles.contentText1} onPress={() => changeGoal()}>초기 목표에 도달했습니다. 완벽합니다. </Text>
+
                     </BlurView>
                 </ScrollView>
             </View>
@@ -88,7 +112,8 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: 30,
-        paddingTop: 20
+        paddingTop: 20,
+        marginBottom: -10
     },
     cardContainer: {
         flex: 22,
@@ -102,8 +127,9 @@ const styles = StyleSheet.create({
     },
     card: {
         flex: 1,
-        padding: 20,
-        margin: 16,
+        paddingVertical: 16,
+        marginHorizontal: 16,
+        marginVertical: 10,
         textAlign: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
@@ -114,6 +140,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: theme.bg,
         fontWeight: 600,
-        fontSize: 20
+        fontSize: 16,
+        margin: 3,
+    },
+    contentText2: {
+        fontWeight: "bold", textShadowColor: theme.dgrey, // 테두리 색상
+        textShadowOffset: { width: 1, height: 1 }, // 테두리 두께
+        textShadowRadius: 1, color: theme.dddgrey,
+        fontSize: 18
     }
 })

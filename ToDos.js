@@ -5,7 +5,64 @@ const ToDosContext = createContext();
 
 
 export const ToDosProvider = ({ children }) => {
-    const [toDos, setToDos] = useState({})
+    const [toDos, setToDos] = useState({
+        "1745410891536": {
+            "text": "하하하",
+            "progress": 1,
+            "edit": false,
+            "star": true,
+            "date": 20250426
+        },
+        "1745401708292": {
+            "text": "좋아요",
+            "progress": 0,
+            "edit": false,
+            "star": true,
+            "date": 20250423
+        },
+        "1745398985938": {
+            "text": "어탸탸",
+            "progress": 0,
+            "edit": false,
+            "star": false,
+            "date": 20250424
+        },
+        "1745398988383": {
+            "text": "오태탵",
+            "progress": 0,
+            "edit": false,
+            "star": false,
+            "date": 20250425
+        },
+        "1745401702362": {
+            "text": "적당히바람이",
+            "progress": 0,
+            "edit": false,
+            "star": false,
+            "date": 20250423
+        },
+        "1745398983103": {
+            "text": "안녕하세용",
+            "progress": 0,
+            "edit": false,
+            "star": false,
+            "date": 20250423
+        },
+        "1745401706359": {
+            "text": "시원해기분이",
+            "progress": 2,
+            "edit": false,
+            "star": true,
+            "date": 20250423
+        },
+        "1745401709925": {
+            "text": "유후",
+            "progress": 2,
+            "edit": false,
+            "star": true,
+            "date": 20250423
+        }
+    })
     return (
         <ToDosContext.Provider value={{ toDos, setToDos }}>
             {children}

@@ -29,10 +29,10 @@ export default function App() {
       <ToDosProvider>
         < NavigationContainer>
           <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={HomeScreen} options={{ animation: 'fade', headerShown: false }} />
+            <Stack.Screen name="Home" component={HomeScreen} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="PagePrevious" component={PagePrevious} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
-            <Stack.Screen name="PageGraph" component={PageGraph} options={{ animation: 'fade', headerShown: false }} />
-            <Stack.Screen name="PageNext" component={PageNext} options={{ animation: 'fade', headerShown: false }} />
+            <Stack.Screen name="PageGraph" component={PageGraph} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
+            <Stack.Screen name="PageNext" component={PageNext} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </ToDosProvider>
@@ -46,7 +46,39 @@ const window = {
 
 
 export function HomeScreen({ navigation }) {
+
   const { pageLocation, setPageLocation } = usePageLocation(); // Context 사용
+  const { toDos, setToDos } = useToDos();
+  const [inputT, setInputT] = useState("");
+  const [showLottie, setShowLottie] = useState(false); // 폭죽 표시 상태
+  const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
+  const [achiveNum, setAchiveNum] = useState(0);
+
+
+  useEffect(() => {
+    async function loadToDos() {
+      const response = await AsyncStorage.getItem("@toDos")
+      if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
+    } loadToDos()
+  }, [])
+
+  console.log(toDos)
+  useEffect(() => {
+    const checkFirstLaunch = async () => {
+      const isFirstLaunch = await AsyncStorage.getItem('isFirstLaunch');
+      if (isFirstLaunch === null) {
+        const currentDate = TodayDate();
+        await AsyncStorage.setItem('@firstDate', JSON.stringify(currentDate));
+        await AsyncStorage.setItem('isFirstLaunch', 'false'); // 이후에는 다시 실행되지 않도록 설정
+        console.log("앱 처음 실행 날짜 저장:", currentDate);
+      } else {
+        const savedDate = await AsyncStorage.getItem('@firstDate');
+        console.log("저장된 날짜:", JSON.parse(savedDate));
+      }
+    };
+
+    checkFirstLaunch(); // 비동기 함수 호출
+  }, []);
 
   const dateNum = () => {
     const n = String(TodayDate() + pageLocation);
@@ -57,12 +89,7 @@ export function HomeScreen({ navigation }) {
   };
   if (pageLocation === 0) {
 
-    const { toDos, setToDos } = useToDos();
 
-    const [inputT, setInputT] = useState("");
-    const [showLottie, setShowLottie] = useState(false); // 폭죽 표시 상태
-    const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
-    const [achiveNum, setAchiveNum] = useState(0);
 
     const onSwipe = (event) => {
       if (event.nativeEvent.translationX > 50) {
@@ -187,13 +214,6 @@ export function HomeScreen({ navigation }) {
     }
 
 
-    useEffect(() => {
-      async function loadToDos() {
-        const response = await AsyncStorage.getItem("@toDos")
-        if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
-      } loadToDos()
-    }, [])
-
 
     const inputText = (a) => (setInputT(a));
 
@@ -277,7 +297,7 @@ export function HomeScreen({ navigation }) {
       </View >
     </PanGestureHandler>
     </GestureHandlerRootView>
-  } else if (pageLocation < 0) { return <PagePrevious></PagePrevious> } else if (pageLocation > 0) { return <PageNext></PageNext> } else { return; }
+  } else if (pageLocation < 0) { return <PagePrevious></PagePrevious> } else if (pageLocation > 0) { return <PageNext></PageNext> } { return null };
 };
 
 const styles = StyleSheet.create({
