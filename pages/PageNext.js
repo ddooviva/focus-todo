@@ -3,17 +3,20 @@ import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimens
 import { useRef, useEffect, useState } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { theme } from './color';
-import { NavigationContainer } from '@react-navigation/native';
+import { theme } from '../color';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { usePageLocation } from './PageLocationContext'; // Context 훅 임포트
-import { RealDate, TodayDate } from './dateTranslator';
-import { useToDos } from './ToDos';
+import { usePageLocation } from '../PageLocationContext'; // Context 훅 임포트
+import { RealDate, TodayDate } from '../dateTranslator';
+import { useToDos } from '../ToDos';
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 
 
-export default function PageNext({ navigation }) {
+export default function PageNext({ }) {
+    const navigation = useNavigation(); // navigation 객체에 접근할 수 있어
+
     const [inputT, setInputT] = useState("");
     const { pageLocation, setPageLocation } = usePageLocation();
     const { toDos, setToDos } = useToDos();
@@ -66,7 +69,6 @@ export default function PageNext({ navigation }) {
         if (toDos[key].progress < 2) { toDos[key].progress = toDos[key].progress + 1 } else { toDos[key].progress = 0 }
         setToDos(sorting(newToDos));
         await saveToDos(sorting(newToDos));
-        console.log(sorting(newToDos));
         setAchiveNum(() => {
             const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
             console.log(num)
@@ -110,45 +112,64 @@ export default function PageNext({ navigation }) {
         const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
         const dayOfWeek = date.getDay();
         const days = ["일", "월", "화", "수", "목", "금", "토"];
-        console.log(dayOfWeek);
         return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8) + " (" + days[dayOfWeek] + ")"
     };
+    const onSwipe = (event) => {
+        if (event.nativeEvent.translationX > 50) {
+            const countMinus = (a) => a - 1;
+            setTimeout(() => {
+                setPageLocation(countMinus(pageLocation));
+            }, 100);
+        } else if (event.nativeEvent.translationX < -50 && pageLocation < 7) {
+            const countPlus = (a) => a + 1;
+            setTimeout(() => {
+                setPageLocation(countPlus(pageLocation));
+            }, 100);
+        } else { return };
+    };
+    const goHome = () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setPageLocation(0); }
+
     const inputText = (a) => (setInputT(a));
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.ddgrey} /></TouchableOpacity>
-                <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme.dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
-                    <Text style={styles.date}>{dateNum()}</Text>
-                </View>
-                {pageLocation !== +7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme.ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretright" size={24} color={theme.lgrey} /></TouchableOpacity>}
-            </View>
-            <View style={styles.inputContainer}>
-                <TextInput style={styles.inputBox}
-                    placeholder='해야 할 일을 적어주세요' onSubmitEditing={() => { addToDo(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-                    onChangeText={(a) => inputText(a)}
-                    value={inputT}>
-                </TextInput>
-            </View>
-            <View style={styles.listContainer}>
-
-                <ScrollView >
-                    {Object.keys(nextToDo).map((key) => {
-                        return (
-                            <View key={key} style={{
-                                ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
-                            }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (nextToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
-                                {(!nextToDo[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (nextToDo[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{nextToDo[key].text}</Text> :
-                                    <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={nextToDo[key].text}></TextInput>)}
-                                <StatusBar style="auto" />
-                            </View>)
-                    }
-                    )}
-                </ScrollView>
-            </View >
-
-        </View >
+        <GestureHandlerRootView >
+            <PanGestureHandler onGestureEvent={onSwipe}>
+                <View style={styles.container}>
+                    <View style={styles.header}>
+                        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.ddgrey} /></TouchableOpacity>
+                        <TouchableOpacity onPress={() => goHome()}>
+                            <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme.dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
+                                <Text style={styles.date}>{dateNum()}</Text>
+                            </View>
+                        </TouchableOpacity>
+                        {pageLocation !== +7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme.ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretright" size={24} color={theme.lgrey} /></TouchableOpacity>}
+                    </View>
+                    <View style={styles.inputContainer}>
+                        <TextInput style={styles.inputBox}
+                            placeholder='해야 할 일을 적어주세요' onSubmitEditing={() => { addToDo(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+                            onChangeText={(a) => inputText(a)}
+                            value={inputT}>
+                        </TextInput>
+                    </View>
+                    <View style={styles.listContainer}>
+                        <ScrollView>
+                            {Object.keys(nextToDo).map((key) => {
+                                return (
+                                    <View key={key} style={{
+                                        ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
+                                    }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                        onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (nextToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
+                                        {!nextToDo[key].edit ?
+                                            <Text style={{ ...styles.listText, textDecorationLine: (nextToDo[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{nextToDo[key].text}</Text> :
+                                            <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={nextToDo[key].text}></TextInput>}
+                                        <StatusBar style="auto" />
+                                    </View>)
+                            }
+                            )}
+                        </ScrollView>
+                    </View >
+                </View >
+            </PanGestureHandler>
+        </GestureHandlerRootView >
     );
 }
 
