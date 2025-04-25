@@ -19,6 +19,8 @@ import { ToDosProvider } from './ToDos';
 import { useToDos } from './ToDos';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, withTiming, useAnimatedStyle, Easing, } from 'react-native-reanimated';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -52,7 +54,7 @@ export function HomeScreen({ navigation }) {
   const [inputT, setInputT] = useState("");
   const [showLottie, setShowLottie] = useState(false); // 폭죽 표시 상태
   const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
-  const [achiveNum, setAchiveNum] = useState(0);
+  const [achieveNum, setAchieveNum] = useState(0);
 
 
   useEffect(() => {
@@ -61,11 +63,14 @@ export function HomeScreen({ navigation }) {
       if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
     } loadToDos()
   }, [])
-  useEffect(() => setAchiveNum(() => {
+
+  useEffect(() => setAchieveNum(() => {
     const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
+    console.log("뚜아야", num)
     return num;
-  }), [toDos])
-  console.log(toDos)
+  }), [toDos, pageLocation]);
+
+  console.log("home", toDos, achieveNum)
 
   useEffect(() => {
     const checkFirstLaunch = async () => {
@@ -83,6 +88,50 @@ export function HomeScreen({ navigation }) {
 
     checkFirstLaunch(); // 비동기 함수 호출
   }, []);
+
+  useEffect(() => {
+    animatedWaveValue.value = withTiming((-950 * achieveNum), { duration: 7777, easing: Easing.out(Easing.back(1)) });
+  }, [achieveNum]);
+
+  useEffect(() => {
+    animatedBoxValue.value = withTiming((-470 * achieveNum), { duration: 7777, easing: Easing.out(Easing.back(1)) });
+  }, [achieveNum]);
+  const animatedWaveValue = useSharedValue(0);
+  const animatedBoxValue = useSharedValue(0);
+
+  // 애니메이션 스타일 정의
+  const animatedStyleWave = useAnimatedStyle(() => {
+    return {
+      flex: 1,
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      top: animatedWaveValue.value
+    };
+  });
+
+  const animatedStyleBox = useAnimatedStyle(() => {
+    return {
+      flex: 1,
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      top: animatedBoxValue.value
+    };
+  });
+
+  const styleBox = useAnimatedStyle(() => {
+    return {
+      flex: 1,
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      top: withTiming(achieveNum * (-470), 100),
+    };
+  });
 
   const dateNum = () => {
     const n = String(TodayDate() + pageLocation);
@@ -207,31 +256,35 @@ export function HomeScreen({ navigation }) {
       await AsyncStorage.setItem("@toDos", JSON.stringify(toSave))
     }
 
-
-
     const inputText = (a) => (setInputT(a));
 
-    return <GestureHandlerRootView><PanGestureHandler onGestureEvent={onSwipe}>
-      <View style={{ ...styles.container, backgroundColor: "transparent" }}>
-        <LottieView
-          key={Date.now()}
-          PageLocationProvider
-          autoPlay
-          source={require('./assets/wave1.json')}
-          style={{
-            position: 'absolute',
-            top: (-1050 - 600 * achiveNum) / 667 * window.height,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: -5,
-            width: '150%',
-            height: '500%',
-            backgroundColor: "white",
-          }}
-        ></LottieView>
-        <View style={{ flexDirection: "column", justifyContent: "flex-end", backgroundColor: "black", position: 'absolute', bottom: 0, width: '100%', height: 500 / 667 * window.height * achiveNum, zIndex: -5 }} />
+    {/*            </View>
+ */}
 
+    return <GestureHandlerRootView><PanGestureHandler onGestureEvent={onSwipe}>
+      <View style={{ ...styles.container }}>
+        <Animated.View style={{ ...animatedStyleWave, backgroundColor: 'red', flex: 1 }} >
+          <LottieView
+            key={Date.now()}
+            PageLocationProvider
+            autoPlay
+            source={require('./assets/wave1.json')}
+            style={{
+              position: 'absolute',
+              top: 270,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: -5,
+              width: '100%',
+              height: '100%',
+              backgroundColor: "white",
+            }}
+          ></LottieView>
+        </Animated.View>
+        <Animated.View style={{ ...animatedStyleBox, backgroundColor: 'red', flex: 1 }}>
+          <View style={{ flexDirection: "column", backgroundColor: "black", position: 'absolute', bottom: 0, top: 650, width: '100%', height: '100%', zIndex: -5 }} />
+        </Animated.View>
         {showLottie && (<BlurView intensity={5} style={{ ...styles.blurContainer, zIndex: 2 }}>
           <LottieView
             key={animationKey}
@@ -291,7 +344,7 @@ export function HomeScreen({ navigation }) {
         <StatusBar style="dark" />
       </View >
     </PanGestureHandler>
-    </GestureHandlerRootView>
+    </GestureHandlerRootView >
   } else if (pageLocation < 0) { return <PagePrevious></PagePrevious> } else if (pageLocation > 0) { return <PageNext></PageNext> } { return null };
 };
 
