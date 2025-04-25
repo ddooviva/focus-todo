@@ -25,7 +25,10 @@ export default function PageGraph({ navigation }) {
         return a;
     };
     const averageAchiveNumD = () => {
-
+        const a = (i) => {
+            if (achiveNumD(i) === 0) { return null } else { return achiveNumD(i) };
+        };
+        return ((a(1) + a(2) + a(3) + a(4) + a(5) + a(6) + a(7) + a(0)) / 8);
         return ((achiveNumD(7) + achiveNumD(6) + achiveNumD(5) + achiveNumD(4) + achiveNumD(3) + achiveNumD(2) + achiveNumD(1)) / 7).toFixed(3)
     }
 
@@ -47,11 +50,11 @@ export default function PageGraph({ navigation }) {
                     zIndex: -5,
                     width: '180%',
                     height: '110%',
-                    backgroundColor: theme.dddgrey
+                    backgroundColor: theme.natural.dddgrey
                 }}
             ></LottieView>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => setModal1Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} ><AntDesign name="infocirlceo" size={24} color={theme.bg} /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setModal1Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} ><AntDesign name="infocirlceo" size={24} color={theme.natural.bg} /></TouchableOpacity>
                 <Modal
                     animationType='fade'
                     transparent={true}
@@ -66,16 +69,16 @@ export default function PageGraph({ navigation }) {
                         <Text style={styles.modal1Text}>연락처: abu135790@gmail.com</Text>
                         <Text style={styles.modal1Text}></Text>
                         <TouchableOpacity hitSlop={{ top: 1000, bottom: 100, left: 40, right: 40 }} onPress={() => setModal1Visible(false)}>
-                            <AntDesign name="closecircleo" size={24} color={theme.dddgrey}></AntDesign>
+                            <AntDesign name="closecircleo" size={24} color={theme.natural.dddgrey}></AntDesign>
                         </TouchableOpacity>
                     </View>
                 </Modal>
                 <TouchableOpacity onLongPress={() => navigation.navigate('Home')}>
-                    <View style={{ backgroundColor: theme.bg, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
+                    <View style={{ backgroundColor: theme.natural.bg, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
                         <Text style={{ ...styles.date }} > 분석 & 통계 </Text>
                     </View>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setModal2Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}  ><AntDesign name="setting" size={24} color={theme.bg} /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setModal2Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}  ><AntDesign name="setting" size={24} color={theme.natural.bg} /></TouchableOpacity>
                 <Modal
                     animationType='fade'
                     transparent={true}
@@ -89,7 +92,7 @@ export default function PageGraph({ navigation }) {
                         <Text style={styles.modal2Text}> (애니메이션 토글 추가 예정)</Text>
                         <Text></Text>
                         <TouchableOpacity hitSlop={{ top: 1000, bottom: 100, left: 40, right: 40 }} onPress={() => setModal2Visible(false)}>
-                            <AntDesign name="closecircleo" size={24} color={theme.dddgrey}></AntDesign>
+                            <AntDesign name="closecircleo" size={24} color={theme.natural.dddgrey}></AntDesign>
                         </TouchableOpacity>
                     </View>
                 </Modal>
@@ -97,7 +100,7 @@ export default function PageGraph({ navigation }) {
             <View style={styles.cardContainer}>
                 <ScrollView>
                     <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
-                        <Text style={styles.contentText1}>지난 7일간의 과제 달성률은 <Text style={styles.contentText2}>{averageAchiveNumD() * 100}%</Text> 입니다.</Text>
+                        <Text style={styles.contentText1}>지난 7일간의 과제 달성률은 <Text style={styles.contentText2}>{(averageAchiveNumD()) ? (averageAchiveNumD() * 100).toFixed(2) : "-"}%</Text> 입니다.</Text>
                         {(averageAchiveNumD > 0.8) ? <Text style={styles.contentText1}> 대단해요 !</Text> : null}
                     </BlurView>
                     <BlurView intensity={40} style={{ ...styles.card }} tint='systemThinMaterial'>
@@ -106,13 +109,13 @@ export default function PageGraph({ navigation }) {
 
                         }}>
                             <TouchableOpacity onPress={() => setShowGraphWeek(true)}>
-                                <View style={{ backgroundColor: theme.dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, marginRight: 6 }}>
-                                    <Text style={{ fontSize: 16, color: theme.bg, fontWeight: "bold" }}>Week</Text>
+                                <View style={{ backgroundColor: theme.natural.dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, marginRight: 6 }}>
+                                    <Text style={{ fontSize: 16, color: theme.natural.bg, fontWeight: "bold" }}>Week</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setShowGraphWeek(false)}>
-                                <View style={{ backgroundColor: theme.dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
-                                    <Text style={{ fontSize: 16, color: theme.bg, fontWeight: "bold" }}>Month</Text>
+                                <View style={{ backgroundColor: theme.natural.dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
+                                    <Text style={{ fontSize: 16, color: theme.natural.bg, fontWeight: "bold" }}>Month</Text>
                                 </View>
                             </TouchableOpacity></View>
                         {showGraphWeek ? <GraphWeek /> : <View style={{ height: 190, justifyContent: 'center', flex: 1 }}><Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text></View>}
@@ -163,7 +166,7 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 20,
         fontWeight: 600,
-        color: theme.dddgrey,
+        color: theme.natural.dddgrey,
     },
     card: {
         flex: 1,
@@ -178,22 +181,22 @@ const styles = StyleSheet.create({
     },
     contentText1: {
         textAlign: 'center',
-        color: theme.bg,
+        color: theme.natural.bg,
         fontWeight: 600,
         fontSize: 16,
         margin: 3,
     },
     contentText2: {
-        fontWeight: "bold", textShadowColor: theme.dgrey, // 테두리 색상
+        fontWeight: "bold", textShadowColor: theme.natural.bg, // 테두리 색상
         textShadowOffset: { width: 1, height: 1 }, // 테두리 두께
-        textShadowRadius: 1, color: theme.dddgrey,
+        textShadowRadius: 1, color: theme.natural.dddgrey,
         fontSize: 18
     },
     modal1View: {
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 20,
-        backgroundColor: theme.bg,
+        backgroundColor: theme.natural.bg,
         position: 'absolute',
         padding: 20,
         top: 50,
@@ -203,7 +206,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 20,
-        backgroundColor: theme.bg,
+        backgroundColor: theme.natural.bg,
         position: 'absolute',
         padding: 20,
         top: 50,

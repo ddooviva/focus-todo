@@ -135,13 +135,13 @@ export default function PageNext({ }) {
             <PanGestureHandler onGestureEvent={onSwipe}>
                 <View style={styles.container}>
                     <View style={styles.header}>
-                        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.ddgrey} /></TouchableOpacity>
+                        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.natural.ddgrey} /></TouchableOpacity>
                         <TouchableOpacity onPress={() => goHome()}>
-                            <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme.dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
+                            <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme.natural.dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
                                 <Text style={styles.date}>{dateNum()}</Text>
                             </View>
                         </TouchableOpacity>
-                        {pageLocation !== +7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme.ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretright" size={24} color={theme.lgrey} /></TouchableOpacity>}
+                        {pageLocation !== +7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme.natural.ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretright" size={24} color={theme.natural.llgrey} /></TouchableOpacity>}
                     </View>
                     <View style={styles.inputContainer}>
                         <TextInput style={styles.inputBox}
@@ -158,9 +158,9 @@ export default function PageNext({ }) {
                             {Object.keys(nextToDo).map((key) => {
                                 return (
                                     <View key={key} style={{
-                                        ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
+                                        ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.natural.llgrey : toDos[key].progress === 2 ? theme.natural.dgrey : theme.natural.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.natural.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.natural.ddgrey : theme.natural.llgrey)
                                     }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                        onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (nextToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
+                                        onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (nextToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.natural.dddgrey} /></TouchableOpacity>
                                         {!nextToDo[key].edit ?
                                             <Text style={{ ...styles.listText, textDecorationLine: (nextToDo[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{nextToDo[key].text}</Text> :
                                             <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={nextToDo[key].text}></TextInput>}
@@ -179,7 +179,7 @@ export default function PageNext({ }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.bg,
+        backgroundColor: theme.natural.bg,
     },
     header: {
         width: "100%",
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 20,
         fontWeight: 600,
-        color: theme.dddgrey
+        color: theme.natural.dddgrey
     }, inputContainer: {
         flex: 2
     },
@@ -201,11 +201,11 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         paddingHorizontal: 20,
         fontSize: 16,
-        color: theme.dddgrey,
+        color: theme.natural.dddgrey,
         borderRadius: 20,
         borderWidth: 2,
         borderStyle: "dotted",
-        borderColor: theme.dgrey,
+        borderColor: theme.natural.dgrey,
         marginHorizontal: 30
     },
     listContainer: {
@@ -218,7 +218,6 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 20,
         marginHorizontal: 30,
-        backgroundColor: theme.lightgrey,
         margin: 5,
         borderRadius: 20,
         alignItems: "center",
@@ -228,7 +227,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingVertical: 6,
         width: '100%', height: '100%', textAlignVertical: 'bottom',
-        color: theme.dddgrey
+        color: theme.natural.dddgrey
     },
     blurContainer: {
         overflow: 'hidden',

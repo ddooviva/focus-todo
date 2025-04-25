@@ -90,11 +90,11 @@ export function HomeScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    animatedWaveValue.value = withTiming((-950 * achieveNum), { duration: 7777, easing: Easing.out(Easing.back(1)) });
+    animatedWaveValue.value = withTiming(((-950 * achieveNum) / 667 * window.height), { duration: 7777, easing: Easing.out(Easing.back(1)) });
   }, [achieveNum]);
 
   useEffect(() => {
-    animatedBoxValue.value = withTiming((-470 * achieveNum), { duration: 7777, easing: Easing.out(Easing.back(1)) });
+    animatedBoxValue.value = withTiming(((-470 * achieveNum) / 667 * window.height), { duration: 7777, easing: Easing.out(Easing.back(1)) });
   }, [achieveNum]);
   const animatedWaveValue = useSharedValue(0);
   const animatedBoxValue = useSharedValue(0);
@@ -122,16 +122,7 @@ export function HomeScreen({ navigation }) {
     };
   });
 
-  const styleBox = useAnimatedStyle(() => {
-    return {
-      flex: 1,
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      top: withTiming(achieveNum * (-470), 100),
-    };
-  });
+
 
   const dateNum = () => {
     const n = String(TodayDate() + pageLocation);
@@ -258,9 +249,6 @@ export function HomeScreen({ navigation }) {
 
     const inputText = (a) => (setInputT(a));
 
-    {/*            </View>
- */}
-
     return <GestureHandlerRootView><PanGestureHandler onGestureEvent={onSwipe}>
       <View style={{ ...styles.container }}>
         <Animated.View style={{ ...animatedStyleWave, backgroundColor: 'red', flex: 1 }} >
@@ -271,7 +259,7 @@ export function HomeScreen({ navigation }) {
             source={require('./assets/wave1.json')}
             style={{
               position: 'absolute',
-              top: 270,
+              top: 270 / 667 * window.height,
               bottom: 0,
               left: 0,
               right: 0,
@@ -282,8 +270,8 @@ export function HomeScreen({ navigation }) {
             }}
           ></LottieView>
         </Animated.View>
-        <Animated.View style={{ ...animatedStyleBox, backgroundColor: 'red', flex: 1 }}>
-          <View style={{ flexDirection: "column", backgroundColor: "black", position: 'absolute', bottom: 0, top: 650, width: '100%', height: '100%', zIndex: -5 }} />
+        <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
+          <View style={{ flexDirection: "column", backgroundColor: theme.natural.ddgrey, position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -5 }} />
         </Animated.View>
         {showLottie && (<BlurView intensity={5} style={{ ...styles.blurContainer, zIndex: 2 }}>
           <LottieView
@@ -307,13 +295,13 @@ export function HomeScreen({ navigation }) {
         </BlurView>
         )}
         <View style={styles.header}>
-          <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.ddgrey} /></TouchableOpacity>
+          <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.natural.ddgrey} /></TouchableOpacity>
           <TouchableOpacity onLongPress={() => navigation.navigate('PageGraph')}>
-            <View style={{ backgroundColor: theme.dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
-              <Text style={{ ...styles.date, color: theme.bg }} >{dateNum()}</Text>
+            <View style={{ backgroundColor: theme.natural.dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
+              <Text style={{ ...styles.date, color: theme.natural.bg }} >{dateNum()}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme.ddgrey} /></TouchableOpacity>
+          <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme.natural.ddgrey} /></TouchableOpacity>
         </View>
         <View style={styles.inputContainer}>
           <TextInput style={styles.inputBox}
@@ -331,9 +319,9 @@ export function HomeScreen({ navigation }) {
             {Object.keys(toDos).map((key) => {
               return TodayDate() === toDos[key].date ? (
                 <View key={key} style={{
-                  ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.llgrey : toDos[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
+                  ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme.natural.llgrey : toDos[key].progress === 2 ? theme.natural.dgrey : theme.natural.llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme.natural.dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme.natural.ddgrey : theme.natural.llgrey)
                 }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey} /></TouchableOpacity>
+                  onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.natural.dddgrey} /></TouchableOpacity>
                   {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
                     <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
                 </View>) : null
@@ -351,7 +339,7 @@ export function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.bg,
+    backgroundColor: theme.natural.bg,
   },
   header: {
     width: "100%",
@@ -365,7 +353,7 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 20,
     fontWeight: 600,
-    color: theme.dddgrey
+    color: theme.natural.dddgrey
   },
   inputContainer: {
     flex: 2
@@ -374,11 +362,11 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     fontSize: 16,
-    color: theme.dddgrey,
+    color: theme.natural.dddgrey,
     borderRadius: 20,
     borderWidth: 2,
     borderStyle: "dotted",
-    borderColor: theme.dgrey,
+    borderColor: theme.natural.dgrey,
     marginHorizontal: 30
   },
   listContainer: {
@@ -391,7 +379,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     marginHorizontal: 30,
-    backgroundColor: theme.lightgrey,
     margin: 5,
     borderRadius: 20,
     alignItems: "center",
@@ -402,7 +389,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     width: '90%',
     height: '100%',
-    color: theme.dddgrey
+    color: theme.natural.dddgrey
   },
   blurContainer: {
     overflow: 'hidden',

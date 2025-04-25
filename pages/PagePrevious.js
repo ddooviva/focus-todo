@@ -11,6 +11,7 @@ import LottieView from 'lottie-react-native';
 import * as Haptics from 'expo-haptics'
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import Animated, { useSharedValue, withTiming, useAnimatedStyle, Easing, } from 'react-native-reanimated';
 
 const window = {
     width: Dimensions.get('window').width, height: Dimensions.get('window').height
@@ -22,9 +23,41 @@ export default function PagePrevious({ }) {
     const { toDos, setToDos } = useToDos();
     const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
 
+    useEffect(() => {
+        animatedWaveValue.value = withTiming(((-950 * achieveNum) / 667 * window.height), { duration: 7777, easing: Easing.out(Easing.back(1)) });
+    }, [achieveNum]);
+
+    useEffect(() => {
+        animatedBoxValue.value = withTiming(((-470 * achieveNum) / 667 * window.height), { duration: 7777, easing: Easing.out(Easing.back(1)) });
+    }, [achieveNum]);
+    const animatedWaveValue = useSharedValue(0);
+    const animatedBoxValue = useSharedValue(0);
+
+    // 애니메이션 스타일 정의
+    const animatedStyleWave = useAnimatedStyle(() => {
+        return {
+            flex: 1,
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            top: animatedWaveValue.value
+        };
+    });
+
+    const animatedStyleBox = useAnimatedStyle(() => {
+        return {
+            flex: 1,
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            top: animatedBoxValue.value
+        };
+    });
 
     const previousToDo = Object.fromEntries(Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() + pageLocation));
-    const achiveNum = Object.entries(previousToDo).filter(([key, value]) => value.progress === 2).length / Object.entries(previousToDo).length;
+    const achieveNum = Object.entries(previousToDo).filter(([key, value]) => value.progress === 2).length / Object.entries(previousToDo).length;
 
     const dateNum = () => {
         const n = String(TodayDate() + pageLocation);
@@ -53,39 +86,44 @@ export default function PagePrevious({ }) {
         <GestureHandlerRootView>
             <PanGestureHandler onGestureEvent={onSwipe} >
                 <View style={{ ...styles.container, backgroundColor: "transparent" }}>
-                    <LottieView
-                        key={Date.now()}// key는 LottieView에 직접 추가
-                        PageLocationProvider
-                        autoPlay
-                        source={require('../assets/wave1.json')}
-                        style={{
-                            position: 'absolute',
-                            top: (-1050 - 600 * achiveNum) / 667 * window.height,
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            zIndex: -1,
-                            width: '150%',
-                            height: '500%',
-                            backgroundColor: "white"
-                        }}
-                    ></LottieView>
-                    <View style={{ flexDirection: "column", justifyContent: "flex-end", backgroundColor: "black", position: 'absolute', bottom: 0, width: '100%', height: 500 / 667 * window.height * achiveNum, zIndex: -1 }} />
+                    <Animated.View style={{ ...animatedStyleWave, backgroundColor: 'red', flex: 1 }} >
+                        <LottieView
+                            key={Date.now()}
+                            PageLocationProvider
+                            autoPlay
+                            source={require('../assets/wave1.json')}
+                            style={{
+                                position: 'absolute',
+                                top: 270 / 667 * window.height,
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                zIndex: -5,
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: "white",
+                            }}
+                        ></LottieView>
+                    </Animated.View>
+                    <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
+                        <View style={{ flexDirection: "column", backgroundColor: theme.natural.ddgrey, position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -5 }} />
+                    </Animated.View>
+                    <View style={{ flexDirection: "column", justifyContent: "flex-end", backgroundColor: "black", position: 'absolute', bottom: 0, width: '100%', height: 500 / 667 * window.height * achieveNum, zIndex: -1 }} />
 
                     <View style={{ ...styles.header, backgroundColor: "transparent" }}>
-                        {pageLocation !== -7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.ddgrey}></AntDesign></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretleft" size={24} color={theme.lgrey}></AntDesign></TouchableOpacity>}
+                        {pageLocation !== -7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme.natural.ddgrey}></AntDesign></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretleft" size={24} color={theme.natural.llgrey}></AntDesign></TouchableOpacity>}
                         <TouchableOpacity onPress={() => goHome()}>
-                            <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme.dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
+                            <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme.natural.dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
 
                                 <Text style={styles.date} >{dateNum()}</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }}><AntDesign name="caretright" size={24} color={theme.ddgrey}></AntDesign></TouchableOpacity>
+                        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }}><AntDesign name="caretright" size={24} color={theme.natural.ddgrey}></AntDesign></TouchableOpacity>
                     </View>
                     {
                         Object.keys(previousToDo).length === 0 ?
                             <View style={{ ...styles.listContainer, alignItems: 'center' }}>
-                                <Text style={styles.nodataText}>no data</Text>
+                                <Text style={styles.nodataText}></Text>
                                 <LottieView
                                     key={Date.now()}// key는 LottieView에 직접 추가
                                     PageLocationProvider
@@ -107,10 +145,10 @@ export default function PagePrevious({ }) {
                                     {Object.keys(previousToDo).map((key) => {
                                         return (
                                             <View key={key} style={{
-                                                ...styles.list, backgroundColor: (previousToDo[key].star && previousToDo[key].progress !== 2 ? theme.llgrey : previousToDo[key].progress === 2 ? theme.dgrey : theme.llgrey), borderWidth: 2, borderColor: (previousToDo[key].progress === 2 ? theme.dgrey : previousToDo[key].star && previousToDo[key].progress !== 2 ? theme.ddgrey : theme.llgrey)
+                                                ...styles.list, backgroundColor: (previousToDo[key].star && previousToDo[key].progress !== 2 ? theme.natural.llgrey : previousToDo[key].progress === 2 ? theme.natural.dgrey : theme.natural.llgrey), borderWidth: 2, borderColor: (previousToDo[key].progress === 2 ? theme.natural.dgrey : previousToDo[key].star && previousToDo[key].progress !== 2 ? theme.natural.ddgrey : theme.natural.llgrey)
                                             }}>
                                                 <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                                                    <MaterialCommunityIcons style={{ paddingRight: 10 }} name={previousToDo[key].progress === 0 ? "checkbox-blank-outline" : (previousToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.dddgrey}></MaterialCommunityIcons></TouchableOpacity>
+                                                    <MaterialCommunityIcons style={{ paddingRight: 10 }} name={previousToDo[key].progress === 0 ? "checkbox-blank-outline" : (previousToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme.natural.dddgrey}></MaterialCommunityIcons></TouchableOpacity>
                                                 <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress === 2 ? "line-through" : "none") }}>{previousToDo[key].text}</Text>
                                             </View>)
                                     })
@@ -129,7 +167,7 @@ export default function PagePrevious({ }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.bg,
+        backgroundColor: theme.natural.bg,
     },
     header: {
         width: "100%",
@@ -143,7 +181,7 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 20,
         fontWeight: 600,
-        color: theme.dddgrey
+        color: theme.natural.dddgrey
     },
     listContainer: {
         flex: 22,
@@ -155,7 +193,6 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 20,
         marginHorizontal: 30,
-        backgroundColor: theme.lightgrey,
         margin: 5,
         borderRadius: 20,
         alignItems: "center",
@@ -165,7 +202,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingVertical: 6,
         width: '100%', height: '100%', textAlignVertical: 'bottom',
-        color: theme.dddgrey
+        color: theme.natural.dddgrey
     },
     blurContainer: {
         overflow: 'hidden',
@@ -180,7 +217,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         zIndex: 1
     }, nodataText: {
-        color: theme.grey,
+        color: theme.natural.llgrey,
         fontSize: 60,
         fontWeight: 700,
         paddingTop: 60
