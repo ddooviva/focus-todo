@@ -13,10 +13,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import { color, theme } from '../color';
 
+const themeColor = color();
 
 export default function PageNext({ }) {
     const navigation = useNavigation(); // navigation 객체에 접근할 수 있어
-
     const [inputT, setInputT] = useState("");
     const { pageLocation, setPageLocation } = usePageLocation();
     const { toDos, setToDos } = useToDos();
@@ -135,13 +135,13 @@ export default function PageNext({ }) {
             <PanGestureHandler onGestureEvent={onSwipe}>
                 <View style={styles.container}>
                     <View style={styles.header}>
-                        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[color].ddgrey} /></TouchableOpacity>
+                        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[themeColor].ddgrey} /></TouchableOpacity>
                         <TouchableOpacity onPress={() => goHome()}>
-                            <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme[color].dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
+                            <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme[themeColor].dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
                                 <Text style={styles.date}>{dateNum()}</Text>
                             </View>
                         </TouchableOpacity>
-                        {pageLocation !== +7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme[color].ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretright" size={24} color={theme[color].llgrey} /></TouchableOpacity>}
+                        {pageLocation !== +7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme[themeColor].ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretright" size={24} color={theme[themeColor].llgrey} /></TouchableOpacity>}
                     </View>
                     <View style={styles.inputContainer}>
                         <TextInput style={styles.inputBox}
@@ -158,9 +158,9 @@ export default function PageNext({ }) {
                             {Object.keys(nextToDo).map((key) => {
                                 return (
                                     <View key={key} style={{
-                                        ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme[color].llgrey : toDos[key].progress === 2 ? theme[color].dgrey : theme[color].llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme[color].dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme[color].ddgrey : theme[color].llgrey)
+                                        ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme[themeColor].llgrey : toDos[key].progress === 2 ? theme[themeColor].dgrey : theme[themeColor].llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme[themeColor].dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme[themeColor].ddgrey : theme[themeColor].llgrey)
                                     }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                        onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (nextToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[color].dddgrey} /></TouchableOpacity>
+                                        onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (nextToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[themeColor].dddgrey} /></TouchableOpacity>
                                         {!nextToDo[key].edit ?
                                             <Text style={{ ...styles.listText, textDecorationLine: (nextToDo[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{nextToDo[key].text}</Text> :
                                             <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={nextToDo[key].text}></TextInput>}
@@ -179,7 +179,7 @@ export default function PageNext({ }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme[color].bg,
+        backgroundColor: theme[themeColor].bg,
     },
     header: {
         width: "100%",
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 20,
         fontWeight: 600,
-        color: theme[color].dddgrey
+        color: theme[themeColor].dddgrey
     }, inputContainer: {
         flex: 2
     },
@@ -201,11 +201,11 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         paddingHorizontal: 20,
         fontSize: 16,
-        color: theme[color].dddgrey,
+        color: theme[themeColor].dddgrey,
         borderRadius: 20,
         borderWidth: 2,
         borderStyle: "dotted",
-        borderColor: theme[color].dgrey,
+        borderColor: theme[themeColor].dgrey,
         marginHorizontal: 30
     },
     listContainer: {
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingVertical: 6,
         width: '90%', height: '100%', textAlignVertical: 'bottom',
-        color: theme[color].dddgrey
+        color: theme[themeColor].dddgrey
     },
     blurContainer: {
         overflow: 'hidden',

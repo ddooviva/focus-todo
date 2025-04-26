@@ -12,7 +12,9 @@ import { usePageLocation } from '../PageLocationContext'; // Context 훅 임포�
 import GraphWeek from './GraphWeek'
 import { useToDos } from '../ToDos';
 import { TodayDate } from '../dateTranslator';
-import { color, theme } from '../color';
+import { randomColor, color, theme } from '../color';
+
+let themeColor = color();
 
 export default function PageGraph({ navigation }) {
     const [modal1Visible, setModal1Visible] = useState(false);
@@ -29,10 +31,8 @@ export default function PageGraph({ navigation }) {
             if (achiveNumD(i) === 0) { return null } else { return achiveNumD(i) };
         };
         return ((a(1) + a(2) + a(3) + a(4) + a(5) + a(6) + a(7) + a(0)) / 8);
-        return ((achiveNumD(7) + achiveNumD(6) + achiveNumD(5) + achiveNumD(4) + achiveNumD(3) + achiveNumD(2) + achiveNumD(1)) / 7).toFixed(3)
     }
 
-    const changeGoal = () => { };
 
     return (
         <View style={styles.container}>
@@ -50,11 +50,11 @@ export default function PageGraph({ navigation }) {
                     zIndex: -5,
                     width: '180%',
                     height: '110%',
-                    backgroundColor: theme[color].dddgrey
+                    backgroundColor: theme[themeColor].dddgrey
                 }}
             ></LottieView>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => setModal1Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} ><AntDesign name="infocirlceo" size={24} color={theme[color].bg} /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setModal1Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} ><AntDesign name="infocirlceo" size={24} color={theme[themeColor].bg} /></TouchableOpacity>
                 <Modal
                     animationType='fade'
                     transparent={true}
@@ -68,17 +68,17 @@ export default function PageGraph({ navigation }) {
                         <Text style={styles.modal1Text}>개발자: DDoOviva</Text>
                         <Text style={styles.modal1Text}>연락처: abu135790@gmail.com</Text>
                         <Text style={styles.modal1Text}></Text>
-                        <TouchableOpacity hitSlop={{ top: 1000, bottom: 100, left: 40, right: 40 }} onPress={() => setModal1Visible(false)}>
-                            <AntDesign name="closecircleo" size={24} color={theme[color].dddgrey}></AntDesign>
+                        <TouchableOpacity hitSlop={{ top: 40, bottom: 100, left: 40, right: 40 }} onPress={() => setModal1Visible(false)}>
+                            <AntDesign name="closecircleo" size={24} color={theme[themeColor].dddgrey}></AntDesign>
                         </TouchableOpacity>
                     </View>
                 </Modal>
                 <TouchableOpacity onLongPress={() => navigation.navigate('Home')}>
-                    <View style={{ backgroundColor: theme[color].bg, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
+                    <View style={{ backgroundColor: theme[themeColor].bg, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
                         <Text style={{ ...styles.date }} > 분석 & 통계 </Text>
                     </View>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setModal2Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}  ><AntDesign name="setting" size={24} color={theme[color].bg} /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setModal2Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}  ><AntDesign name="setting" size={24} color={theme[themeColor].bg} /></TouchableOpacity>
                 <Modal
                     animationType='fade'
                     transparent={true}
@@ -88,11 +88,11 @@ export default function PageGraph({ navigation }) {
                     <BlurView intensity={10} style={styles.container} tint='systemThinMaterial'></BlurView>
                     <View style={styles.modal2View}>
                         <Text style={styles.modal2Text}> 업데이트를 기다려주세요 ...</Text>
-                        <Text style={styles.modal2Text}> (테마 변경 추가 예정)</Text>
+                        <Text style={styles.modal2Text} onPress={() => { randomColor(); }}> (테마 변경 추가 예정)</Text>
                         <Text style={styles.modal2Text}> (애니메이션 토글 추가 예정)</Text>
                         <Text></Text>
-                        <TouchableOpacity hitSlop={{ top: 1000, bottom: 100, left: 40, right: 40 }} onPress={() => setModal2Visible(false)}>
-                            <AntDesign name="closecircleo" size={24} color={theme[color].dddgrey}></AntDesign>
+                        <TouchableOpacity hitSlop={{ top: 40, bottom: 100, left: 40, right: 40 }} onPress={() => setModal2Visible(false)}>
+                            <AntDesign name="closecircleo" size={24} color={theme[themeColor].dddgrey}></AntDesign>
                         </TouchableOpacity>
                     </View>
                 </Modal>
@@ -109,13 +109,13 @@ export default function PageGraph({ navigation }) {
 
                         }}>
                             <TouchableOpacity onPress={() => { setShowGraphWeek(true) }}>
-                                <View style={{ backgroundColor: theme[color].dddgrey, opacity: (showGraphWeek ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, marginRight: 6 }}>
-                                    <Text style={{ fontSize: 16, color: theme[color].bg, fontWeight: "bold" }}>Week</Text>
+                                <View style={{ backgroundColor: theme[themeColor].dddgrey, opacity: (showGraphWeek ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, marginRight: 6 }}>
+                                    <Text style={{ fontSize: 16, color: theme[themeColor].bg, fontWeight: "bold" }}>Week</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setShowGraphWeek(false)}>
-                                <View style={{ backgroundColor: theme[color].dddgrey, opacity: (!showGraphWeek ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
-                                    <Text style={{ fontSize: 16, color: theme[color].bg, fontWeight: "bold" }}>Month</Text>
+                                <View style={{ backgroundColor: theme[themeColor].dddgrey, opacity: (!showGraphWeek ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
+                                    <Text style={{ fontSize: 16, color: theme[themeColor].bg, fontWeight: "bold" }}>Month</Text>
                                 </View>
                             </TouchableOpacity></View>
                         {showGraphWeek ? <GraphWeek /> : <View style={{ height: 190, justifyContent: 'center', flex: 1 }}><Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text></View>}
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 20,
         fontWeight: 600,
-        color: theme[color].dddgrey,
+        color: theme[themeColor].dddgrey,
     },
     card: {
         flex: 1,
@@ -181,22 +181,22 @@ const styles = StyleSheet.create({
     },
     contentText1: {
         textAlign: 'center',
-        color: theme[color].bg,
+        color: theme[themeColor].bg,
         fontWeight: 600,
         fontSize: 16,
         margin: 3,
     },
     contentText2: {
-        fontWeight: "bold", textShadowColor: theme[color].bg, // 테두리 색상
+        fontWeight: "bold", textShadowColor: theme[themeColor].bg, // 테두리 색상
         textShadowOffset: { width: 0.5, height: 0.5 }, // 테두리 두께
-        textShadowRadius: 1, color: theme[color].dddgrey,
+        textShadowRadius: 1, color: theme[themeColor].dddgrey,
         fontSize: 18
     },
     modal1View: {
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 20,
-        backgroundColor: theme[color].bg,
+        backgroundColor: theme[themeColor].bg,
         position: 'absolute',
         padding: 20,
         top: 50,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 20,
-        backgroundColor: theme[color].bg,
+        backgroundColor: theme[themeColor].bg,
         position: 'absolute',
         padding: 20,
         top: 50,

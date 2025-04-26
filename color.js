@@ -1,5 +1,11 @@
-export const theme = {
+import React, { useState } from 'react'; // React와 useState를 임포트해야 해
 
+export const useColor = () => {
+    const [color, setColor] = useState("black");
+    const changeColor = () => setColor(Object.keys(theme)[Math.floor(Math.random() * 12) + 1]);
+    return { color, changeColor }
+}
+export const theme = {
     black: {
         bg: "#ffffff",
         llgrey: '#f1f3f5',
@@ -131,4 +137,4 @@ function hexToRGB(hex) {
     return [r, g, b]
 }
 
-export const color = "black"
+

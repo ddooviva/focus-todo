@@ -13,6 +13,7 @@ import {
     StackedBarChart
 } from "react-native-chart-kit";
 import { color, theme } from '../color';
+const themeColor = ;
 
 export default GraphWeek = () => {
     const { toDos, setToDos } = useToDos();
@@ -65,13 +66,13 @@ export default GraphWeek = () => {
                 chartConfig={{
                     backgroundGradientFromOpacity: 0,
                     backgroundGradientToOpacity: 0,
-                    fillShadowGradientFrom: theme[color].dddgrey,
+                    fillShadowGradientFrom: theme[themeColor].dddgrey,
                     fillShadowGradientFromOpacity: 1,
-                    fillShadowGradientTo: theme[color].dddgrey,
+                    fillShadowGradientTo: theme[themeColor].dddgrey,
                     fillShadowGradientToOpacity: 0.0,
                     decimalPlaces: 0, // optional, defaults to 2dp
-                    color: (opacity = 1) => hexToRgba(theme[color].dddgrey, opacity),
-                    labelColor: (opacity = 1) => hexToRgba(theme[color].dddgrey, opacity),
+                    color: (opacity = 1) => hexToRgba(theme[themeColor].dddgrey, opacity),
+                    labelColor: (opacity = 1) => hexToRgba(theme[themeColor].dddgrey, opacity),
                     propsForLabels: { fontWeight: 'bold', fontSize: 15 },
                     style: {
                         borderRadius: 16

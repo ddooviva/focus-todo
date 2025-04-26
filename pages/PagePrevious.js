@@ -16,6 +16,7 @@ import { color, theme } from '../color';
 const window = {
     width: Dimensions.get('window').width, height: Dimensions.get('window').height
 }
+const themeColor = color();
 
 
 export default function PagePrevious({ }) {
@@ -101,7 +102,7 @@ export default function PagePrevious({ }) {
         default: require('../assets/nofound/blue.json'),
 
     };
-    const animationData = animationPaths[color];
+    const animationData = animationPaths[themeColor];
 
     const animationPaths1 = {
         black: require('../assets/wave/black.json'),
@@ -120,7 +121,7 @@ export default function PagePrevious({ }) {
         default: require('../assets/wave/blue.json'),
 
     };
-    const animationData1 = animationPaths1[color];
+    const animationData1 = animationPaths1[themeColor];
     return (
         <GestureHandlerRootView>
             <PanGestureHandler onGestureEvent={onSwipe} >
@@ -152,19 +153,19 @@ export default function PagePrevious({ }) {
                         Object.keys(previousToDo).length === 0 ?
                             <View /> :
                             <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
-                                <View style={{ flexDirection: "column", backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -5 }} />
+                                <View style={{ flexDirection: "column", backgroundColor: (themeColor === "black" ? "black" : theme[themeColor].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -5 }} />
                             </Animated.View>}
-                    <View style={{ flexDirection: "column", justifyContent: "flex-end", backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, width: '100%', height: 500 / 667 * window.height * achieveNum, zIndex: -1 }} />
+                    <View style={{ flexDirection: "column", justifyContent: "flex-end", backgroundColor: (themeColor === "black" ? "black" : theme[themeColor].ddgrey), position: 'absolute', bottom: 0, width: '100%', height: 500 / 667 * window.height * achieveNum, zIndex: -1 }} />
 
-                    <View style={{ ...styles.header, backgroundColor: theme[color].bg }}>
-                        {pageLocation !== -7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[color].ddgrey}></AntDesign></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretleft" size={24} color={theme[color].llgrey}></AntDesign></TouchableOpacity>}
+                    <View style={{ ...styles.header, backgroundColor: theme[themeColor].bg }}>
+                        {pageLocation !== -7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[themeColor].ddgrey}></AntDesign></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretleft" size={24} color={theme[themeColor].llgrey}></AntDesign></TouchableOpacity>}
                         <TouchableOpacity onPress={() => goHome()}>
-                            <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme[color].dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
+                            <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme[themeColor].dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
 
                                 <Text style={styles.date} >{dateNum()}</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }}><AntDesign name="caretright" size={24} color={theme[color].ddgrey}></AntDesign></TouchableOpacity>
+                        <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }}><AntDesign name="caretright" size={24} color={theme[themeColor].ddgrey}></AntDesign></TouchableOpacity>
                     </View>
                     {
                         Object.keys(previousToDo).length === 0 ?
@@ -191,10 +192,10 @@ export default function PagePrevious({ }) {
                                     {Object.keys(previousToDo).map((key) => {
                                         return (
                                             <View key={key} style={{
-                                                ...styles.list, backgroundColor: (previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[color].llgrey : previousToDo[key].progress === 2 ? theme[color].dgrey : theme[color].llgrey), borderWidth: 2, borderColor: (previousToDo[key].progress === 2 ? theme[color].dgrey : previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[color].ddgrey : theme[color].llgrey)
+                                                ...styles.list, backgroundColor: (previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[themeColor].llgrey : previousToDo[key].progress === 2 ? theme[themeColor].dgrey : theme[themeColor].llgrey), borderWidth: 2, borderColor: (previousToDo[key].progress === 2 ? theme[themeColor].dgrey : previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[themeColor].ddgrey : theme[themeColor].llgrey)
                                             }}>
                                                 <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                                                    <MaterialCommunityIcons style={{ paddingRight: 10 }} name={previousToDo[key].progress === 0 ? "checkbox-blank-outline" : (previousToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[color].dddgrey}></MaterialCommunityIcons></TouchableOpacity>
+                                                    <MaterialCommunityIcons style={{ paddingRight: 10 }} name={previousToDo[key].progress === 0 ? "checkbox-blank-outline" : (previousToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[themeColor].dddgrey}></MaterialCommunityIcons></TouchableOpacity>
                                                 <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress === 2 ? "line-through" : "none") }}>{previousToDo[key].text}</Text>
                                             </View>)
                                     })
@@ -213,7 +214,7 @@ export default function PagePrevious({ }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme[color].bg,
+        backgroundColor: theme[themeColor].bg,
     },
     header: {
         width: "100%",
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 20,
         fontWeight: 600,
-        color: theme[color].dddgrey
+        color: theme[themeColor].dddgrey
     },
     listContainer: {
         flex: 22,
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingVertical: 6,
         width: '90%', height: '100%', textAlignVertical: 'bottom',
-        color: theme[color].dddgrey
+        color: theme[themeColor].dddgrey
     },
     blurContainer: {
         overflow: 'hidden',
@@ -263,7 +264,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         zIndex: 1
     }, nodataText: {
-        color: theme[color].llgrey,
+        color: theme[themeColor].llgrey,
         fontSize: 60,
         fontWeight: 700,
         paddingTop: 60

@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import LottieView from 'lottie-react-native';
-import { color, theme } from './color';
+import { useColor, theme } from './color';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import PagePrevious from './pages/PagePrevious'; // PreviousDate 컴포넌트 임포트
@@ -23,6 +23,7 @@ import Animated, { useSharedValue, withTiming, useAnimatedStyle, Easing, } from 
 
 
 const Stack = createNativeStackNavigator();
+const { color, changeColor } = useColor();
 
 export default function App() {
 
@@ -264,7 +265,7 @@ export function HomeScreen({ navigation }) {
       yellow: require('./assets/wave/yellow.json'),
       default: require('./assets/wave/black.json'),
     };
-    const animationData1 = animationPaths1[color];
+    const animationData1 = animationPaths1[themeColor];
 
     return <GestureHandlerRootView><PanGestureHandler onGestureEvent={onSwipe}>
       <View style={{ ...styles.container }}>
@@ -289,7 +290,7 @@ export function HomeScreen({ navigation }) {
           ></LottieView>
         </Animated.View>
         <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
-          <View style={{ flexDirection: "column", opacity: 1, backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -6 }} />
+          <View style={{ flexDirection: "column", opacity: 1, backgroundColor: (themeColor === "black" ? "black" : theme[themeColor].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -6 }} />
         </Animated.View>
         {showLottie && (<BlurView intensity={5} style={{ ...styles.blurContainer, zIndex: 2 }}>
           <LottieView
@@ -313,13 +314,13 @@ export function HomeScreen({ navigation }) {
         </BlurView>
         )}
         <View style={styles.header}>
-          <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[color].ddgrey} /></TouchableOpacity>
+          <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[themeColor].ddgrey} /></TouchableOpacity>
           <TouchableOpacity onLongPress={() => navigation.navigate('PageGraph')}>
-            <View style={{ backgroundColor: theme[color].dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
-              <Text style={{ ...styles.date, color: theme[color].bg }} >{dateNum()}</Text>
+            <View style={{ backgroundColor: theme[themeColor].dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
+              <Text style={{ ...styles.date, color: theme[themeColor].bg }} >{dateNum()}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme[color].ddgrey} /></TouchableOpacity>
+          <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme[themeColor].ddgrey} /></TouchableOpacity>
         </View>
         <View style={styles.inputContainer}>
           <TextInput style={styles.inputBox}
@@ -337,9 +338,9 @@ export function HomeScreen({ navigation }) {
             {Object.keys(toDos).map((key) => {
               return TodayDate() === toDos[key].date ? (
                 <View key={key} style={{
-                  ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme[color].llgrey : toDos[key].progress === 2 ? theme[color].dgrey : theme[color].llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme[color].dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme[color].ddgrey : theme[color].llgrey)
+                  ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme[themeColor].llgrey : toDos[key].progress === 2 ? theme[themeColor].dgrey : theme[themeColor].llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme[themeColor].dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme[themeColor].ddgrey : theme[themeColor].llgrey)
                 }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[color].dddgrey} /></TouchableOpacity>
+                  onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[themeColor].dddgrey} /></TouchableOpacity>
                   {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
                     <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
                 </View>) : null
@@ -357,7 +358,7 @@ export function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme[color].bg,
+    backgroundColor: theme[themeColor].bg,
   },
   header: {
     width: "100%",
@@ -371,7 +372,7 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 20,
     fontWeight: 600,
-    color: theme[color].dddgrey
+    color: theme[themeColor].dddgrey
   },
   inputContainer: {
     flex: 2
@@ -380,11 +381,11 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     fontSize: 16,
-    color: theme[color].dddgrey,
+    color: theme[themeColor].dddgrey,
     borderRadius: 20,
     borderWidth: 2,
     borderStyle: "dotted",
-    borderColor: theme[color].dgrey,
+    borderColor: theme[themeColor].dgrey,
     marginHorizontal: 30
   },
   listContainer: {
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     width: '90%',
     height: '100%',
-    color: theme[color].dddgrey
+    color: theme[themeColor].dddgrey
   },
   blurContainer: {
     overflow: 'hidden',
