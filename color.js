@@ -1,3 +1,6 @@
+import { useState } from "react";
+
+
 export const theme = {
 
     black: {
@@ -131,4 +134,6 @@ function hexToRGB(hex) {
     return [r, g, b]
 }
 
-export const color = "black"
+
+
+export const color = "black";

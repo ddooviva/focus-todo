@@ -31,6 +31,12 @@ export default function PageGraph({ navigation }) {
         return ((a(1) + a(2) + a(3) + a(4) + a(5) + a(6) + a(7) + a(0)) / 8);
         return ((achiveNumD(7) + achiveNumD(6) + achiveNumD(5) + achiveNumD(4) + achiveNumD(3) + achiveNumD(2) + achiveNumD(1)) / 7).toFixed(3)
     }
+    const realColor = (a) => {
+        console.log(Object.keys(theme)[a])
+        return setColor(Object.keys(theme)[a]);
+    }
+    const randomNum = () => Math.floor(Math.random() * 12) + 1;
+
 
     const changeGoal = () => { };
 
@@ -85,13 +91,14 @@ export default function PageGraph({ navigation }) {
                     visible={modal2Visible}
                     onRequestClose={() => setModal2Visible(false)}
                 >
+
                     <BlurView intensity={10} style={styles.container} tint='systemThinMaterial'></BlurView>
                     <View style={styles.modal2View}>
                         <Text style={styles.modal2Text}> 업데이트를 기다려주세요 ...</Text>
-                        <Text style={styles.modal2Text}> (테마 변경 추가 예정)</Text>
+                        <Text style={styles.modal2Text} onPress={() => realColor(randomNum())}> (테마 변경 추가 예정)</Text>
                         <Text style={styles.modal2Text}> (애니메이션 토글 추가 예정)</Text>
                         <Text></Text>
-                        <TouchableOpacity hitSlop={{ top: 1000, bottom: 100, left: 40, right: 40 }} onPress={() => setModal2Visible(false)}>
+                        <TouchableOpacity hitSlop={{ top: 40, bottom: 100, left: 40, right: 40 }} onPress={() => setModal2Visible(false)}>
                             <AntDesign name="closecircleo" size={24} color={theme[color].dddgrey}></AntDesign>
                         </TouchableOpacity>
                     </View>
