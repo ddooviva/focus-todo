@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, Modal, Button, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
+import { ScrollView, StyleSheet, Text, Modal, Button, TextInput, TouchableOpacity, View, Dimensions, TouchableNativeFeedback } from 'react-native';
 import { useRef, useEffect, useState } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
@@ -119,17 +119,37 @@ export default function PageGraph({ navigation }) {
             padding: 20,
             top: 50,
             right: 40,
+            width: '60%'
         },
         modal1Text: {
-            fontWeight: '600',
             margin: 4,
-            fontSize: 14
+            fontSize: 16, fontWeight: "bold",
+            color: theme[color].bg,
+            backgroundColor: theme[color].dddgrey,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+
+            borderRadius: 10
+
         },
 
         modal2Text: {
             fontWeight: '600',
             margin: 4,
-            fontSize: 14
+            fontSize: 16,
+            color: theme[color].dddgrey,
+            textAlign: 'center',
+            textAlignVertical: 'bottom',
+            alignContent: 'center',
+        },
+        modal3Text: {
+            fontWeight: '600',
+            margin: 4,
+            fontSize: 5,
+            color: theme[color].dddgrey,
+            textAlign: 'center',
+            textAlignVertical: 'bottom',
+            alignContent: 'center',
         }
     })
 
@@ -149,14 +169,14 @@ export default function PageGraph({ navigation }) {
                     zIndex: -5,
                     width: '180%',
                     height: '110%',
-                    backgroundColor: theme[color].dddgrey
+                    backgroundColor: theme[color].ddgrey
                 }}
             ></LottieView> : <View style={{
                 position: 'absolute',
                 top: 0,
                 bottom: 0,
                 left: 0,
-                right: 0, backgroundColor: theme[color].dddgrey
+                right: 0, backgroundColor: theme[color].ddgrey
             }} />}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => setModal1Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} ><AntDesign name="infocirlceo" size={24} color={theme[color].bg} /></TouchableOpacity>
@@ -166,46 +186,57 @@ export default function PageGraph({ navigation }) {
                     visible={modal1Visible}
                     onRequestClose={() => setModal1Visible(false)}
                 >
-                    <BlurView intensity={10} style={styles.container} tint='systemThinMaterial'></BlurView>
-                    <View style={styles.modal1View}>
-                        <Text style={styles.modal1Text}>앱 이름: Focus Todo</Text>
-                        <Text style={styles.modal1Text}>버전: 1.0.0</Text>
-                        <Text style={styles.modal1Text}>개발자: DDoOviva</Text>
-                        <Text style={styles.modal1Text}>연락처: abu135790@gmail.com</Text>
-                        <Text style={styles.modal1Text}></Text>
-                        <TouchableOpacity hitSlop={{ top: 1000, bottom: 100, left: 40, right: 40 }} onPress={() => setModal1Visible(false)}>
-                            <AntDesign name="closecircleo" size={24} color={theme[color].dddgrey}></AntDesign>
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableNativeFeedback onPress={() => setModal1Visible(false)}>
+
+                        <BlurView intensity={10} style={styles.container} tint='systemThinMaterial'><View style={styles.modal1View}>
+                            <AntDesign name="infocirlce" size={30} color={theme[color].dddgrey} />
+                            <Text style={styles.modal3Text}></Text>
+                            <Text style={styles.modal3Text}></Text>
+                            <Text style={styles.modal2Text}>앱 이름: Focus Todo</Text>
+                            <Text style={styles.modal2Text}>버전: 1.0.0</Text>
+                            <Text style={styles.modal2Text}>개발자: DDoOviva</Text>
+                            <Text style={styles.modal2Text}>연락처: abu135790@gmail.com</Text>
+                            <Text style={styles.modal3Text}></Text>
+
+                        </View></BlurView>
+                    </TouchableNativeFeedback>
                 </Modal>
                 <TouchableOpacity onLongPress={() => navigation.navigate('Home')}>
                     <View style={{ backgroundColor: theme[color].bg, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
                         <Text style={{ ...styles.date }} > 분석 & 통계 </Text>
                     </View>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setModal2Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}  ><AntDesign name="setting" size={24} color={theme[color].bg} /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setModal2Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}  ><Ionicons name="settings-outline" size={24} color={theme[color].bg} /></TouchableOpacity>
                 <Modal
                     animationType='fade'
                     transparent={true}
                     visible={modal2Visible}
                     onRequestClose={() => setModal2Visible(false)}
                 >
+                    <TouchableNativeFeedback onPress={() => setModal2Visible(false)}>
 
-                    <BlurView intensity={10} style={styles.container} tint='systemThinMaterial'></BlurView>
-                    <View style={styles.modal2View}>
-                        <Text style={{ ...styles.modal2Text, fontSize: 14 }}>Settings</Text>
-                        <Text style={styles.modal2Text}>Theme</Text>
-                        <Text style={styles.modal2Text} onPress={() => changeColor(randomNum())}> 테마 랜덤</Text>
-                        <Text style={styles.modal2Text} onPress={async () => {
-                            const a = !isPlaying;
-                            setIsPlaying(a);
-                            await AsyncStorage.setItem("@isPlaying", JSON.stringify(a));
-                        }}>(애니메이션 토글 추가 예정)</Text>
-                        <Text></Text>
-                        <TouchableOpacity hitSlop={{ top: 10, bottom: 100, left: 40, right: 40 }} onPress={() => setModal2Visible(false)}>
-                            <AntDesign name="closecircleo" size={24} color={theme[color].dddgrey}></AntDesign>
-                        </TouchableOpacity>
-                    </View>
+                        <BlurView intensity={10} style={styles.container} tint='systemThinMaterial'>
+                            <View style={styles.modal2View}>
+
+                                <Ionicons name="settings" size={30} color={theme[color].dddgrey} />
+                                <Text style={styles.modal3Text}></Text>
+
+                                <Text style={styles.modal3Text}></Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.modal2Text}>Theme Color :</Text>
+                                    <Text style={{ ...styles.modal1Text }} onPress={() => changeColor(randomNum())}>{color.toUpperCase()}</Text></View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text style={styles.modal2Text}>Animation Toggle :</Text>
+                                    <Text style={styles.modal1Text} onPress={async () => {
+                                        const a = !isPlaying;
+                                        setIsPlaying(a);
+                                        await AsyncStorage.setItem("@isPlaying", JSON.stringify(a));
+                                    }}>{isPlaying ? "ON" : "OFF"}</Text></View>
+                                <Text style={styles.modal3Text}></Text>
+
+                            </View></BlurView>
+                    </TouchableNativeFeedback>
+
+
                 </Modal>
             </View >
             <View style={styles.cardContainer}>

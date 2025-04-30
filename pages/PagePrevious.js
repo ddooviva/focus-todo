@@ -26,7 +26,7 @@ export default function PagePrevious({ }) {
     const { pageLocation, setPageLocation } = usePageLocation();
     const { toDos, setToDos } = useToDos();
     const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(null);
 
     useEffect(() => { loadState(); }, []);
 
@@ -245,7 +245,7 @@ export default function PagePrevious({ }) {
                         right: 0,
                     }}>
                         {Object.keys(previousToDo).length === 0 ?
-                            <View /> :
+                            null :
                             <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
                                 <LottieView
                                     key={Date.now()}
@@ -268,11 +268,11 @@ export default function PagePrevious({ }) {
                             </Animated.View>}
 
                         {Object.keys(previousToDo).length === 0 ?
-                            <View /> :
+                            null :
                             <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
                                 <View style={{ flexDirection: "column", opacity: 1, backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -6 }} />
-                            </Animated.View>}
-                    </View> : <View />}
+                            </Animated.View>}</View>
+                        : null}
 
                     <View style={{ ...styles.header, backgroundColor: theme[color].bg }}>
                         {pageLocation !== -7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[color].ddgrey}></AntDesign></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretleft" size={24} color={theme[color].llgrey}></AntDesign></TouchableOpacity>}
