@@ -11,12 +11,13 @@ import { useToDos } from '../ToDos';
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
-import { color, theme } from '../color';
+import { theme } from '../color';
+import { useColor } from '../ColorContext'
 
 
 export default function PageNext({ }) {
     const navigation = useNavigation(); // navigation 객체에 접근할 수 있어
-
+    const { color, setColor } = useColor();
     const [inputT, setInputT] = useState("");
     const { pageLocation, setPageLocation } = usePageLocation();
     const { toDos, setToDos } = useToDos();
@@ -71,7 +72,6 @@ export default function PageNext({ }) {
         await saveToDos(sorting(newToDos));
         setAchiveNum(() => {
             const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
-            console.log(num)
             return num;
         });
     }
@@ -129,6 +129,75 @@ export default function PageNext({ }) {
     };
     const goHome = () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setPageLocation(0); }
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme[color].bg,
+        },
+        header: {
+            width: "100%",
+            flex: 3,
+            flexDirection: 'row',
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: 30,
+            paddingTop: 20
+        },
+        date: {
+            fontSize: 20,
+            fontWeight: 600,
+            color: theme[color].dddgrey
+        }, inputContainer: {
+            flex: 2
+        },
+        inputBox: {
+            paddingVertical: 15,
+            paddingHorizontal: 20,
+            fontSize: 16,
+            color: theme[color].dddgrey,
+            borderRadius: 20,
+            borderWidth: 2,
+            borderStyle: "dotted",
+            borderColor: theme[color].dgrey,
+            marginHorizontal: 30
+        },
+        listContainer: {
+            flex: 20,
+            height: '100%',
+            paddingVertical: 10
+        },
+        list: {
+            flexDirection: "row",
+            paddingVertical: 12,
+            paddingHorizontal: 20,
+            marginHorizontal: 30,
+            margin: 5,
+            borderRadius: 20,
+            alignItems: "center",
+        },
+        listText: {
+            fontWeight: 500,
+            fontSize: 16,
+            paddingVertical: 6,
+            width: '90%', height: '100%', textAlignVertical: 'bottom',
+            color: theme[color].dddgrey
+        },
+        blurContainer: {
+            overflow: 'hidden',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: 400,
+            height: 1000,
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1
+        },
+    });
+
+
     const inputText = (a) => (setInputT(a));
     return (
         <GestureHandlerRootView >
@@ -175,72 +244,3 @@ export default function PageNext({ }) {
         </GestureHandlerRootView >
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme[color].bg,
-    },
-    header: {
-        width: "100%",
-        flex: 3,
-        flexDirection: 'row',
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: 30,
-        paddingTop: 20
-    },
-    date: {
-        fontSize: 20,
-        fontWeight: 600,
-        color: theme[color].dddgrey
-    }, inputContainer: {
-        flex: 2
-    },
-    inputBox: {
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-        fontSize: 16,
-        color: theme[color].dddgrey,
-        borderRadius: 20,
-        borderWidth: 2,
-        borderStyle: "dotted",
-        borderColor: theme[color].dgrey,
-        marginHorizontal: 30
-    },
-    listContainer: {
-        flex: 20,
-        height: '100%',
-        paddingVertical: 10
-    },
-    list: {
-        flexDirection: "row",
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        marginHorizontal: 30,
-        margin: 5,
-        borderRadius: 20,
-        alignItems: "center",
-    },
-    listText: {
-        fontWeight: 500,
-        fontSize: 16,
-        paddingVertical: 6,
-        width: '90%', height: '100%', textAlignVertical: 'bottom',
-        color: theme[color].dddgrey
-    },
-    blurContainer: {
-        overflow: 'hidden',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: 400,
-        height: 1000,
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1
-    },
-});
-

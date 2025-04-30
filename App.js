@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import LottieView from 'lottie-react-native';
-import { color, theme } from './color';
+import { theme } from './color';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import PagePrevious from './pages/PagePrevious'; // PreviousDate 컴포넌트 임포트
@@ -20,6 +20,7 @@ import { useToDos } from './ToDos';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, withTiming, useAnimatedStyle, Easing, } from 'react-native-reanimated';
+import { ColorProvider, useColor } from './ColorContext';
 
 
 const Stack = createNativeStackNavigator();
@@ -27,18 +28,20 @@ const Stack = createNativeStackNavigator();
 export default function App() {
 
   return (
-    <PageLocationProvider>
-      <ToDosProvider>
-        < NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={HomeScreen} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
-            <Stack.Screen name="PagePrevious" component={PagePrevious} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
-            <Stack.Screen name="PageGraph" component={PageGraph} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
-            <Stack.Screen name="PageNext" component={PageNext} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </ToDosProvider>
-    </PageLocationProvider>
+    <ColorProvider>
+      <PageLocationProvider>
+        <ToDosProvider>
+          < NavigationContainer>
+            <Stack.Navigator initialRouteName="Home">
+              <Stack.Screen name="Home" component={HomeScreen} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
+              <Stack.Screen name="PagePrevious" component={PagePrevious} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
+              <Stack.Screen name="PageGraph" component={PageGraph} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
+              <Stack.Screen name="PageNext" component={PageNext} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </ToDosProvider>
+      </PageLocationProvider>
+    </ColorProvider>
   );
 }
 
@@ -48,29 +51,26 @@ const window = {
 
 
 export function HomeScreen({ navigation }) {
-
+  const { color, setColor } = useColor();
   const { pageLocation, setPageLocation } = usePageLocation(); // Context 사용
   const { toDos, setToDos } = useToDos();
   const [inputT, setInputT] = useState("");
   const [showLottie, setShowLottie] = useState(false); // 폭죽 표시 상태
   const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
   const [achieveNum, setAchieveNum] = useState(0);
-
-
+  const [start, setStart] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   useEffect(() => {
-    async function loadToDos() {
-      const response = await AsyncStorage.getItem("@toDos")
-      if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
-    } loadToDos()
+    loadToDos();
+
   }, [])
 
   useEffect(() => setAchieveNum(() => {
     const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
-    console.log("뚜아야", num)
+    setStart(false);
     return num;
   }), [toDos, pageLocation]);
 
-  console.log("home", toDos, achieveNum)
 
   useEffect(() => {
     const checkFirstLaunch = async () => {
@@ -88,16 +88,20 @@ export function HomeScreen({ navigation }) {
 
     checkFirstLaunch(); // 비동기 함수 호출
   }, []);
+  useEffect(
+    () => {
+      animatedWaveValue.value = withTiming(((-950 * achieveNum) / 667 * window.height), { duration: 0, easing: Easing.out(Easing.back(1)) });
+      animatedBoxValue.value = withTiming(((-470 * achieveNum) / 667 * window.height), { duration: 0, easing: Easing.out(Easing.back(1)) });
+    }, [start])
 
   useEffect(() => {
     animatedWaveValue.value = withTiming(((-950 * achieveNum) / 667 * window.height), { duration: 7777, easing: Easing.out(Easing.back(1)) });
+    animatedBoxValue.value = withTiming(((-470 * achieveNum) / 667 * window.height), { duration: 7777, easing: Easing.out(Easing.back(1)) });
+
   }, [achieveNum]);
 
-  useEffect(() => {
-    animatedBoxValue.value = withTiming(((-470 * achieveNum) / 667 * window.height), { duration: 7777, easing: Easing.out(Easing.back(1)) });
-  }, [achieveNum]);
-  const animatedWaveValue = useSharedValue(0);
-  const animatedBoxValue = useSharedValue(0);
+  const animatedWaveValue = useSharedValue((-950 * achieveNum) / 667 * window.height);
+  const animatedBoxValue = useSharedValue(((-470 * achieveNum) / 667 * window.height));
 
   // 애니메이션 스타일 정의
   const animatedStyleWave = useAnimatedStyle(() => {
@@ -123,7 +127,17 @@ export function HomeScreen({ navigation }) {
   });
 
 
-
+  async function loadToDos() {
+    const response = await AsyncStorage.getItem("@toDos");
+    const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
+    setAchieveNum(num);
+    setStart(true);
+    const a = await AsyncStorage.getItem("@color")
+    setColor(a ? a : "black");
+    const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
+    setIsPlaying(b !== undefined ? b : true)
+    if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
+  }
   const dateNum = () => {
     const n = String(TodayDate() + pageLocation);
     const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
@@ -244,7 +258,7 @@ export function HomeScreen({ navigation }) {
     }
 
     async function saveToDos(toSave) {
-      await AsyncStorage.setItem("@toDos", JSON.stringify(toSave))
+      await AsyncStorage.setItem("@toDos", JSON.stringify(toSave));
     }
 
     const inputText = (a) => (setInputT(a));
@@ -266,9 +280,77 @@ export function HomeScreen({ navigation }) {
     };
     const animationData1 = animationPaths1[color];
 
+    const styles = StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: theme[color].bg,
+      },
+      header: {
+        width: "100%",
+        flex: 3,
+        flexDirection: 'row',
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: 30,
+        paddingTop: 20
+      },
+      date: {
+        fontSize: 20,
+        fontWeight: 600,
+        color: theme[color].dddgrey
+      },
+      inputContainer: {
+        flex: 2
+      },
+      inputBox: {
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        fontSize: 16,
+        color: theme[color].dddgrey,
+        borderRadius: 20,
+        borderWidth: 2,
+        borderStyle: "dotted",
+        borderColor: theme[color].dgrey,
+        marginHorizontal: 30
+      },
+      listContainer: {
+        flex: 20,
+        height: '100%',
+        paddingVertical: 10
+      },
+      list: {
+        flexDirection: "row",
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        marginHorizontal: 30,
+        margin: 5,
+        borderRadius: 20,
+        alignItems: "center",
+      },
+      listText: {
+        fontWeight: 500,
+        fontSize: 16,
+        paddingVertical: 6,
+        width: '90%',
+        height: '100%',
+        color: theme[color].dddgrey
+      },
+      blurContainer: {
+        overflow: 'hidden',
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: 400,
+        height: 1000,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+    });
     return <GestureHandlerRootView><PanGestureHandler onGestureEvent={onSwipe}>
       <View style={{ ...styles.container }}>
-        <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
+        {isPlaying ? <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
           <LottieView
             key={Date.now()}
             speed={0.2}
@@ -287,10 +369,10 @@ export function HomeScreen({ navigation }) {
               height: '98%',
             }}
           ></LottieView>
-        </Animated.View>
-        <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
+        </Animated.View> : null}
+        {isPlaying ? <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
           <View style={{ flexDirection: "column", opacity: 1, backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -6 }} />
-        </Animated.View>
+        </Animated.View> : null}
         {showLottie && (<BlurView intensity={5} style={{ ...styles.blurContainer, zIndex: 2 }}>
           <LottieView
             key={animationKey}
@@ -353,72 +435,3 @@ export function HomeScreen({ navigation }) {
     </GestureHandlerRootView >
   } else if (pageLocation < 0) { return <PagePrevious></PagePrevious> } else if (pageLocation > 0) { return <PageNext></PageNext> } { return null };
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme[color].bg,
-  },
-  header: {
-    width: "100%",
-    flex: 3,
-    flexDirection: 'row',
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 30,
-    paddingTop: 20
-  },
-  date: {
-    fontSize: 20,
-    fontWeight: 600,
-    color: theme[color].dddgrey
-  },
-  inputContainer: {
-    flex: 2
-  },
-  inputBox: {
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    color: theme[color].dddgrey,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderStyle: "dotted",
-    borderColor: theme[color].dgrey,
-    marginHorizontal: 30
-  },
-  listContainer: {
-    flex: 20,
-    height: '100%',
-    paddingVertical: 10
-  },
-  list: {
-    flexDirection: "row",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    marginHorizontal: 30,
-    margin: 5,
-    borderRadius: 20,
-    alignItems: "center",
-  },
-  listText: {
-    fontWeight: 500,
-    fontSize: 16,
-    paddingVertical: 6,
-    width: '90%',
-    height: '100%',
-    color: theme[color].dddgrey
-  },
-  blurContainer: {
-    overflow: 'hidden',
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: 400,
-    height: 1000,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

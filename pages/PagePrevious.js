@@ -11,7 +11,9 @@ import * as Haptics from 'expo-haptics'
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import Animated, { useSharedValue, withTiming, useAnimatedStyle, Easing, } from 'react-native-reanimated';
-import { color, theme } from '../color';
+import { theme } from '../color';
+import { useColor } from '../ColorContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const window = {
     width: Dimensions.get('window').width, height: Dimensions.get('window').height
@@ -20,18 +22,23 @@ const window = {
 
 export default function PagePrevious({ }) {
     const navigation = useNavigation(); // navigation 객체에 접근할 수 있어
-
+    const { color, setColor } = useColor();
     const { pageLocation, setPageLocation } = usePageLocation();
     const { toDos, setToDos } = useToDos();
     const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
+    const [isPlaying, setIsPlaying] = useState(true);
+
+    useEffect(() => { loadState(); }, []);
 
     useEffect(() => {
         animatedWaveValue.value = (-950 * achieveNum) / 667 * window.height;
-    }, [achieveNum, pageLocation]);
-
-    useEffect(() => {
         animatedBoxValue.value = (-470 * achieveNum) / 667 * window.height;
     }, [achieveNum, pageLocation]);
+
+    async function loadState() {
+        const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
+        setIsPlaying(b !== undefined ? b : true)
+    }
 
     const animatedWaveValue = useSharedValue((-950 * achieveNum) / 667 * window.height);
     const animatedBoxValue = useSharedValue((-470 * achieveNum) / 667 * window.height);
@@ -121,12 +128,79 @@ export default function PagePrevious({ }) {
 
     };
     const animationData1 = animationPaths1[color];
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme[color].bg,
+        },
+        header: {
+            width: "100%",
+            flex: 3,
+            flexDirection: 'row',
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: 30,
+            paddingTop: 20,
+        },
+        date: {
+            fontSize: 20,
+            fontWeight: 600,
+            color: theme[color].dddgrey
+        },
+        listContainer: {
+            flex: 22,
+            height: '100%',
+            paddingVertical: 10
+        },
+        list: {
+            flexDirection: "row",
+            paddingVertical: 12,
+            paddingHorizontal: 20,
+            marginHorizontal: 30,
+            margin: 5,
+            borderRadius: 20,
+            alignItems: "center",
+        },
+        listText: {
+            fontWeight: 500,
+            fontSize: 16,
+            paddingVertical: 6,
+            width: '90%', height: '100%', textAlignVertical: 'bottom',
+            color: theme[color].dddgrey
+        },
+        blurContainer: {
+            overflow: 'hidden',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: 400,
+            height: 1000,
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1
+        }, nodataText: {
+            color: theme[color].llgrey,
+            fontSize: 60,
+            fontWeight: 700,
+            paddingTop: 60
+        }
+    });
+
     return (
         <GestureHandlerRootView>
             <PanGestureHandler onGestureEvent={onSwipe} >
                 <View style={{ ...styles.container }}>
-                    {
-                        Object.keys(previousToDo).length === 0 ?
+                    {isPlaying ? <View style={{
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                    }}>
+                        {Object.keys(previousToDo).length === 0 ?
                             <View /> :
                             <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
                                 <LottieView
@@ -148,13 +222,13 @@ export default function PagePrevious({ }) {
                                     }}
                                 ></LottieView>
                             </Animated.View>}
-                    {
-                        Object.keys(previousToDo).length === 0 ?
+
+                        {Object.keys(previousToDo).length === 0 ?
                             <View /> :
                             <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
-                                <View style={{ flexDirection: "column", backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -5 }} />
+                                <View style={{ flexDirection: "column", opacity: 1, backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -6 }} />
                             </Animated.View>}
-                    <View style={{ flexDirection: "column", justifyContent: "flex-end", backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, width: '100%', height: 500 / 667 * window.height * achieveNum, zIndex: -1 }} />
+                    </View> : <View />}
 
                     <View style={{ ...styles.header, backgroundColor: theme[color].bg }}>
                         {pageLocation !== -7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[color].ddgrey}></AntDesign></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretleft" size={24} color={theme[color].llgrey}></AntDesign></TouchableOpacity>}
@@ -209,64 +283,4 @@ export default function PagePrevious({ }) {
     )
 };
 
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme[color].bg,
-    },
-    header: {
-        width: "100%",
-        flex: 3,
-        flexDirection: 'row',
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: 30,
-        paddingTop: 20,
-    },
-    date: {
-        fontSize: 20,
-        fontWeight: 600,
-        color: theme[color].dddgrey
-    },
-    listContainer: {
-        flex: 22,
-        height: '100%',
-        paddingVertical: 10
-    },
-    list: {
-        flexDirection: "row",
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        marginHorizontal: 30,
-        margin: 5,
-        borderRadius: 20,
-        alignItems: "center",
-    },
-    listText: {
-        fontWeight: 500,
-        fontSize: 16,
-        paddingVertical: 6,
-        width: '90%', height: '100%', textAlignVertical: 'bottom',
-        color: theme[color].dddgrey
-    },
-    blurContainer: {
-        overflow: 'hidden',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: 400,
-        height: 1000,
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1
-    }, nodataText: {
-        color: theme[color].llgrey,
-        fontSize: 60,
-        fontWeight: 700,
-        paddingTop: 60
-    }
-});
 

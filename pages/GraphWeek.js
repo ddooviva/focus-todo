@@ -4,17 +4,11 @@ import { RealDate, TodayDate } from '../dateTranslator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-import {
-    LineChart,
-    BarChart,
-    PieChart,
-    ProgressChart,
-    ContributionGraph,
-    StackedBarChart
-} from "react-native-chart-kit";
-import { color, theme } from '../color';
-
+import { LineChart } from "react-native-chart-kit";
+import { useColor } from '../ColorContext'
+import { theme } from '../color'
 export default GraphWeek = () => {
+    const { color, setColor } = useColor();
     const { toDos, setToDos } = useToDos();
     const [helpToDos, setHelpToDos] = useState({});
     const getToDos = async () => setHelpToDos(await AsyncStorage.getItem("@toDos"));
