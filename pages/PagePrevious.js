@@ -14,6 +14,7 @@ import Animated, { useSharedValue, withTiming, useAnimatedStyle, Easing, } from 
 import { theme } from '../color';
 import { useColor } from '../ColorContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { usePlay } from '../PlayContext';
 
 const window = {
     width: Dimensions.get('window').width, height: Dimensions.get('window').height
@@ -26,7 +27,7 @@ export default function PagePrevious({ }) {
     const { pageLocation, setPageLocation } = usePageLocation();
     const { toDos, setToDos } = useToDos();
     const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
-    const [isPlaying, setIsPlaying] = useState(null);
+    const { isPlaying, setIsPlaying } = usePlay();
 
     useEffect(() => { loadState(); }, []);
 

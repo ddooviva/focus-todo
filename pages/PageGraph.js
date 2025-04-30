@@ -14,6 +14,7 @@ import { useToDos } from '../ToDos';
 import { TodayDate } from '../dateTranslator';
 import { theme } from '../color';
 import { useColor } from '../ColorContext'
+import { usePlay } from '../PlayContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function PageGraph({ navigation }) {
@@ -22,7 +23,7 @@ export default function PageGraph({ navigation }) {
     const [modal2Visible, setModal2Visible] = useState(false);
     const [showGraphWeek, setShowGraphWeek] = useState(true);
     const { toDos, setToDos } = useToDos();
-    const [isPlaying, setIsPlaying] = useState(true);
+    const { isPlaying, setIsPlaying } = usePlay();
     const achiveNumD = (dateMinusNum) => {
         const a = (Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length === 0) ? 0 :
             Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate() - dateMinusNum).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length
@@ -201,7 +202,7 @@ export default function PageGraph({ navigation }) {
                         </View></BlurView>
                     </TouchableNativeFeedback>
                 </Modal>
-                <TouchableOpacity onLongPress={() => navigation.navigate('Home')}>
+                <TouchableOpacity onLongPress={() => { navigation.navigate('Home'); setIsPlaying(isPlaying) }}>
                     <View style={{ backgroundColor: theme[color].bg, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
                         <Text style={{ ...styles.date }} > 분석 & 통계 </Text>
                     </View>

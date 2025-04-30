@@ -1,3 +1,6 @@
+import { useToDos } from "./ToDos";
+
+const { toDos, setToDos } = useToDos();
 // 날짜를 변환하는 함수
 const convertToDate = (intDate) => {
     const strDate = intDate.toString();
@@ -34,10 +37,14 @@ const calculateWeeklyAchievements = async (toDos) => {
         const savedDate = convertToDate(value.date); // 날짜 변환
         return savedDate >= new Date(lastWeekStart) && savedDate <= lastWeekEnd; // 저번 주 월요일부터 일요일까지
     });
-
+    let totalToDos = 0; // 총 ToDo 개수
+    let completedToDos = 0; // 완료된 ToDo 개수
     // focus, completed, usage 계산
     filteredToDos.forEach(([key, value]) => {
         const savedDate = convertToDate(value.date); // 날짜 변환
+        totalToDos += 1; // 총 ToDo 개수 증가
+
+
 
         // focus 계산
         if (value.star === true && value.progress === 2) {
@@ -46,8 +53,10 @@ const calculateWeeklyAchievements = async (toDos) => {
 
         // completed 계산
         if (value.progress === 2) {
-            achievements[lastWeekStart].completed += 1; // completed 증가
+            completedToDos += 1; // completed 증가
         }
+        achievements[lastWeekStart].completed = totalToDos > 0 ? completedToDos / totalToDos : 0;
+
     });
 
     // usage 계산: 저번 주 동안 앱을 사용한 날 수
@@ -61,23 +70,8 @@ const calculateWeeklyAchievements = async (toDos) => {
     return achievements; // 주 단위 성취도 반환
 };
 
-// 사용 예시
-/* const toDos = {
-    '1': { date: 250420, progress: 2, star: true },
-    '2': { date: 250419, progress: 1, star: false },
-    // 추가 ToDo 항목...
-};
+
 
 // 성취도 계산 및 출력
 const weeklyAchievements = await calculateWeeklyAchievements(toDos);
-console.log(weeklyAchievements); */
-const testToDos = {
-    '1': { date: 250422, star: true, progress: 2 }, // 2025-04-22 (화요일)
-    '2': { date: 250423, star: true, progress: 1 }, // 2025-04-23 (수요일)
-    '3': { date: 250428, star: false, progress: 2 }, // 2025-04-28 (월요일, 이번 주니까 무시)
-};
-
-// 함수 호출
-calculateWeeklyAchievements(testToDos).then(result => {
-    console.log(result);
-});
+console.log(weeklyAchievements);

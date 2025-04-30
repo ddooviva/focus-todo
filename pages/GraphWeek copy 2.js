@@ -4,17 +4,11 @@ import { RealDate, TodayDate } from '../dateTranslator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-import {
-    LineChart,
-    BarChart,
-    PieChart,
-    ProgressChart,
-    ContributionGraph,
-    StackedBarChart
-} from "react-native-chart-kit";
-import { theme } from '../color';
-
+import { LineChart } from "react-native-chart-kit";
+import { useColor } from '../ColorContext'
+import { theme } from '../color'
 export default GraphWeek = () => {
+    const { color, setColor } = useColor();
     const { toDos, setToDos } = useToDos();
     const [helpToDos, setHelpToDos] = useState({});
     const getToDos = async () => setHelpToDos(await AsyncStorage.getItem("@toDos"));
@@ -22,6 +16,15 @@ export default GraphWeek = () => {
     const achiveNumD = (dateMinusNum) => {
         const a = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate() - dateMinusNum).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length
         if (isNaN(a)) { return 0 } { return a }
+    };
+    const hexToRgba = (hex, opacity) => {
+        // 헥스 코드에서 RGB 값 추출
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+
+        // RGBA 형식으로 변환
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     };
 
     return (
@@ -46,7 +49,7 @@ export default GraphWeek = () => {
                         },]
                 }}
                 width={Dimensions.get("window").width} // from react-native
-                height={220}
+                height={190}
                 withVerticalLines={false}
                 withHorizontalLines={true}
                 fromZero
@@ -56,20 +59,22 @@ export default GraphWeek = () => {
                 chartConfig={{
                     backgroundGradientFromOpacity: 0,
                     backgroundGradientToOpacity: 0,
-                    fillShadowGradientFrom: theme.dddgrey,
+                    fillShadowGradientFrom: theme[color].dddgrey,
                     fillShadowGradientFromOpacity: 1,
-                    fillShadowGradientTo: theme.dddgrey,
-                    fillShadowGradientToOpacity: 0,
+                    fillShadowGradientTo: theme[color].dddgrey,
+                    fillShadowGradientToOpacity: 0.0,
                     decimalPlaces: 0, // optional, defaults to 2dp
-                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    color: (opacity = 1) => hexToRgba(theme[color].dddgrey, opacity),
+                    labelColor: (opacity = 1) => hexToRgba(theme[color].dddgrey, opacity),
                     propsForLabels: { fontWeight: 'bold', fontSize: 15 },
                     style: {
                         borderRadius: 16
                     },
                     propsForDots: {
+                        strokeOpacity: 0.5,
+                        stroke: "white",
                         r: "4",
-                        strokeWidth: "3",
+                        strokeWidth: "1",
                     }
                 }}
                 bezier

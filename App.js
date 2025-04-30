@@ -21,27 +21,30 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, withTiming, useAnimatedStyle, Easing, } from 'react-native-reanimated';
 import { ColorProvider, useColor } from './ColorContext';
-
+import { PlayProvider, usePlay } from './PlayContext';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
 
   return (
-    <ColorProvider>
-      <PageLocationProvider>
-        <ToDosProvider>
-          < NavigationContainer>
-            <Stack.Navigator initialRouteName="Home">
-              <Stack.Screen name="Home" component={HomeScreen} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
-              <Stack.Screen name="PagePrevious" component={PagePrevious} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
-              <Stack.Screen name="PageGraph" component={PageGraph} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
-              <Stack.Screen name="PageNext" component={PageNext} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </ToDosProvider>
-      </PageLocationProvider>
-    </ColorProvider>
+    <PlayProvider>
+      <ColorProvider>
+        <PageLocationProvider>
+          <ToDosProvider>
+            < NavigationContainer>
+              <Stack.Navigator initialRouteName="Home">
+                <Stack.Screen name="Home" component={HomeScreen} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
+                <Stack.Screen name="PagePrevious" component={PagePrevious} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
+                <Stack.Screen name="PageGraph" component={PageGraph} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
+                <Stack.Screen name="PageNext" component={PageNext} options={{ animation: 'fade', headerShown: false, gestureEnabled: false }} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </ToDosProvider>
+        </PageLocationProvider>
+      </ColorProvider>
+    </PlayProvider>
+
   );
 }
 
@@ -59,7 +62,7 @@ export function HomeScreen({ navigation }) {
   const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
   const [achieveNum, setAchieveNum] = useState(0);
   const [start, setStart] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const { isPlaying, setIsPlaying } = usePlay();
   useEffect(() => {
     loadToDos();
 
