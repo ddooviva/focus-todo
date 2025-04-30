@@ -138,14 +138,14 @@ export function HomeScreen({ navigation }) {
     setIsPlaying(b !== undefined ? b : true)
     if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
   }
-  const dateNum = () => {
-    const n = String(TodayDate() + pageLocation);
+  const dateHeader = () => {
+    const n = String(RealDate(Date.now() + 86400000 * pageLocation));
     const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
     const dayOfWeek = date.getDay();
     const days = ["일", "월", "화", "수", "목", "금", "토"];
     return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8) + " (" + days[dayOfWeek] + ")"
   };
-
+  console.log(toDos)
   if (pageLocation === 0) {
     const onSwipe = (event) => {
       if (event.nativeEvent.translationX > 50) {
@@ -398,7 +398,7 @@ export function HomeScreen({ navigation }) {
           <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[color].ddgrey} /></TouchableOpacity>
           <TouchableOpacity onLongPress={() => navigation.navigate('PageGraph')}>
             <View style={{ backgroundColor: theme[color].dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
-              <Text style={{ ...styles.date, color: theme[color].bg }} >{dateNum()}</Text>
+              <Text style={{ ...styles.date, color: theme[color].bg }} >{dateHeader()}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme[color].ddgrey} /></TouchableOpacity>
@@ -420,8 +420,9 @@ export function HomeScreen({ navigation }) {
               return TodayDate() === toDos[key].date ? (
                 <View key={key} style={{
                   ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme[color].llgrey : toDos[key].progress === 2 ? theme[color].dgrey : theme[color].llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme[color].dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme[color].ddgrey : theme[color].llgrey)
-                }}><TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 10 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[color].dddgrey} /></TouchableOpacity>
+                }}>
+                  <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 15 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[color].dddgrey} /></TouchableOpacity>
                   {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
                     <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
                 </View>) : null

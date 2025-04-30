@@ -39,6 +39,40 @@ export default function PagePrevious({ }) {
         const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
         setIsPlaying(b !== undefined ? b : true)
     }
+    const sorting = (a) => {
+        const entries = Object.entries(a);
+
+        // 2. 배열을 정렬
+        const sortedEntries = entries.sort(([, a], [, b]) => {
+            const aStarNotProgress2 = a.star && a.progress !== 2; // a가 star이면서 progress가 2가 아닌 경우
+            const bStarNotProgress2 = b.star && b.progress !== 2; // b가 star이면서 progress가 2가 아닌 경우
+            const aStarFalse = !a.star; // a가 star가 아닌 경우
+            const bStarFalse = !b.star; // b가 star가 아닌 경우
+            const aStarAndProgress2 = a.star && a.progress === 2; // a가 star이면서 progress가 2인 경우
+            const bStarAndProgress2 = b.star && b.progress === 2; // b가 star이면서 progress가 2인 경우
+            const aProgress2 = a.progress === 2 && !a.star; // a가 star가 아니고 progress가 2인 경우
+            const bProgress2 = b.progress === 2 && !b.star; // b가 star가 아니고 progress가 2인 경우
+
+            // 정렬 조건
+            if (aStarNotProgress2 && !bStarNotProgress2) return -1; // a가 위로
+            if (!aStarNotProgress2 && bStarNotProgress2) return 1; // b가 위로
+
+            if (aStarFalse && bStarFalse) {
+                if (aProgress2 && !bProgress2) return 1; // a가 progress 2면 b보다 아래로
+                if (!aProgress2 && bProgress2) return -1;
+                return 0; // b가 위로
+            }
+
+            if (aStarAndProgress2 && !bStarAndProgress2) return 1; // a가 아래로
+            if (!aStarAndProgress2 && bStarAndProgress2) return -1; // b가 아래로
+
+            return 0; // 둘 다 같으면 순서 유지
+        });
+
+        // 3. 정렬된 배열을 다시 객체로 변환
+        const sortedToDos = Object.fromEntries(sortedEntries);
+        return sortedToDos;
+    }
 
     const animatedWaveValue = useSharedValue((-950 * achieveNum) / 667 * window.height);
     const animatedBoxValue = useSharedValue((-470 * achieveNum) / 667 * window.height);
@@ -69,8 +103,8 @@ export default function PagePrevious({ }) {
     const previousToDo = Object.fromEntries(Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() + pageLocation));
     const achieveNum = Object.entries(previousToDo).filter(([key, value]) => value.progress === 2).length / Object.entries(previousToDo).length;
 
-    const dateNum = () => {
-        const n = String(TodayDate() + pageLocation);
+    const dateHeader = () => {
+        const n = String(RealDate(Date.now() + 86400000 * pageLocation));
         const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
         const dayOfWeek = date.getDay();
         const days = ["일", "월", "화", "수", "목", "금", "토"];
@@ -188,7 +222,17 @@ export default function PagePrevious({ }) {
             paddingTop: 60
         }
     });
-
+    const moveToDo = async (key) => {
+        if (toDos[key].progress !== 3) {
+            const newToDos = { ...toDos, [Number(Date.now())]: { text: toDos[key].text, progress: toDos[key].progress, edit: false, star: toDos[key].star, date: RealDate(Date.now()) } }
+            setToDos(sorting(newToDos));
+            toDos[key].progress = 3;
+            await saveToDos((sorting(newToDos)));
+        } else return null;
+    }
+    async function saveToDos(toSave) {
+        await AsyncStorage.setItem("@toDos", JSON.stringify(toSave));
+    }
     return (
         <GestureHandlerRootView>
             <PanGestureHandler onGestureEvent={onSwipe} >
@@ -235,7 +279,7 @@ export default function PagePrevious({ }) {
                         <TouchableOpacity onPress={() => goHome()}>
                             <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme[color].dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
 
-                                <Text style={styles.date} >{dateNum()}</Text>
+                                <Text style={styles.date} >{dateHeader()}</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }}><AntDesign name="caretright" size={24} color={theme[color].ddgrey}></AntDesign></TouchableOpacity>
@@ -267,9 +311,12 @@ export default function PagePrevious({ }) {
                                             <View key={key} style={{
                                                 ...styles.list, backgroundColor: (previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[color].llgrey : previousToDo[key].progress === 2 ? theme[color].dgrey : theme[color].llgrey), borderWidth: 2, borderColor: (previousToDo[key].progress === 2 ? theme[color].dgrey : previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[color].ddgrey : theme[color].llgrey)
                                             }}>
-                                                <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                                                    <MaterialCommunityIcons style={{ paddingRight: 10 }} name={previousToDo[key].progress === 0 ? "checkbox-blank-outline" : (previousToDo[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[color].dddgrey}></MaterialCommunityIcons></TouchableOpacity>
-                                                <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress === 2 ? "line-through" : "none") }}>{previousToDo[key].text}</Text>
+                                                <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                                    onPress={() => moveToDo(key)}>
+                                                    {previousToDo[key].progress === 2 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name={"checkbox-marked"} size={25} color={theme[color].dddgrey}></MaterialCommunityIcons>
+                                                        : previousToDo[key].progress === 3 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name="checkbox-blank" size={25} color={theme[color].dddgrey} /> : <MaterialCommunityIcons style={{ paddingRight: 10 }} name="arrow-right-bold-outline" size={25} color={theme[color].dddgrey} />}
+                                                </TouchableOpacity>
+                                                <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress > 1 ? "line-through" : "none") }}>{previousToDo[key].text}</Text>
                                             </View>)
                                     })
                                     }
