@@ -4,6 +4,7 @@ import { RealDate, TodayDate } from '../dateTranslator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+<<<<<<< HEAD
 import {
     LineChart,
     BarChart,
@@ -15,7 +16,13 @@ import {
 import { color, theme } from '../color';
 const themeColor = ;
 
+=======
+import { LineChart } from "react-native-chart-kit";
+import { useColor } from '../ColorContext'
+import { theme } from '../color'
+>>>>>>> fix-date-errir
 export default GraphWeek = () => {
+    const { color, setColor } = useColor();
     const { toDos, setToDos } = useToDos();
     const [helpToDos, setHelpToDos] = useState({});
     const getToDos = async () => setHelpToDos(await AsyncStorage.getItem("@toDos"));

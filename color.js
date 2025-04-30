@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 import React, { useState } from 'react'; // React와 useState를 임포트해야 해
+=======
+import { useColor } from "./ColorContext";
+
+export const theme = {
+>>>>>>> fix-date-errir
 
 export const useColor = () => {
     const [color, setColor] = useState("black");
@@ -137,4 +143,7 @@ function hexToRGB(hex) {
     return [r, g, b]
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> fix-date-errir

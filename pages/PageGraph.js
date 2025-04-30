@@ -12,15 +12,23 @@ import { usePageLocation } from '../PageLocationContext'; // Context 훅 임포�
 import GraphWeek from './GraphWeek'
 import { useToDos } from '../ToDos';
 import { TodayDate } from '../dateTranslator';
+<<<<<<< HEAD
 import { randomColor, color, theme } from '../color';
 
 let themeColor = color();
+=======
+import { theme } from '../color';
+import { useColor } from '../ColorContext'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+>>>>>>> fix-date-errir
 
 export default function PageGraph({ navigation }) {
+    const { color, setColor } = useColor();
     const [modal1Visible, setModal1Visible] = useState(false);
     const [modal2Visible, setModal2Visible] = useState(false);
     const [showGraphWeek, setShowGraphWeek] = useState(true);
     const { toDos, setToDos } = useToDos();
+    const [isPlaying, setIsPlaying] = useState(true);
     const achiveNumD = (dateMinusNum) => {
         const a = (Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length === 0) ? 0 :
             Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate() - dateMinusNum).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length
@@ -32,13 +40,112 @@ export default function PageGraph({ navigation }) {
         };
         return ((a(1) + a(2) + a(3) + a(4) + a(5) + a(6) + a(7) + a(0)) / 8);
     }
+    const changeColor = async (a) => {
+        setColor(Object.keys(theme)[a]);
+        await AsyncStorage.setItem("@color", Object.keys(theme)[a])
+        return null;
+    }
+    const randomNum = () => Math.floor(Math.random() * 12) + 1;
+    const loadState = async () => {
+        const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
+        setIsPlaying(b !== undefined ? b : true)
+    }
+    useEffect(() => {
+        loadState();
+    }, [])
 
+
+<<<<<<< HEAD
+=======
+    const changeGoal = () => { };
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: 'transparent',
+        },
+        header: {
+            width: "100%",
+            flex: 3,
+            flexDirection: 'row',
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: 30,
+            paddingTop: 20,
+            marginBottom: -10
+        },
+        cardContainer: {
+            flex: 22,
+            height: '100%',
+            paddingTop: 10
+        },
+        date: {
+            fontSize: 20,
+            fontWeight: 600,
+            color: theme[color].dddgrey,
+        },
+        card: {
+            flex: 1,
+            paddingVertical: 16,
+            marginHorizontal: 16,
+            marginVertical: 10,
+            textAlign: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            borderRadius: 20,
+            alignItems: 'center'
+        },
+        contentText1: {
+            textAlign: 'center',
+            color: theme[color].bg,
+            fontWeight: 600,
+            fontSize: 16,
+            margin: 3,
+        },
+        contentText2: {
+            fontWeight: "bold", textShadowColor: theme[color].bg, // 테두리 색상
+            textShadowOffset: { width: 0.5, height: 0.5 }, // 테두리 두께
+            textShadowRadius: 1, color: theme[color].dddgrey,
+            fontSize: 18
+        },
+        modal1View: {
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 20,
+            backgroundColor: theme[color].bg,
+            position: 'absolute',
+            padding: 20,
+            top: 50,
+            left: 40,
+        },
+        modal2View: {
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 20,
+            backgroundColor: theme[color].bg,
+            position: 'absolute',
+            padding: 20,
+            top: 50,
+            right: 40,
+        },
+        modal1Text: {
+            fontWeight: '600',
+            margin: 4,
+            fontSize: 14
+        },
+
+        modal2Text: {
+            fontWeight: '600',
+            margin: 4,
+            fontSize: 14
+        }
+    })
+>>>>>>> fix-date-errir
 
     return (
         <View style={styles.container}>
-            <LottieView
+            {isPlaying ? <LottieView
                 key={Date.now()}// key는 LottieView에 직접 추가
-                autoPlay
+                autoPlay={true}
                 loop
                 source={require('../assets/graphbg.json')}
                 style={{
@@ -52,7 +159,13 @@ export default function PageGraph({ navigation }) {
                     height: '110%',
                     backgroundColor: theme[themeColor].dddgrey
                 }}
-            ></LottieView>
+            ></LottieView> : <View style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0, backgroundColor: theme[color].dddgrey
+            }} />}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => setModal1Visible(true)} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} ><AntDesign name="infocirlceo" size={24} color={theme[themeColor].bg} /></TouchableOpacity>
                 <Modal
@@ -85,25 +198,40 @@ export default function PageGraph({ navigation }) {
                     visible={modal2Visible}
                     onRequestClose={() => setModal2Visible(false)}
                 >
+
                     <BlurView intensity={10} style={styles.container} tint='systemThinMaterial'></BlurView>
                     <View style={styles.modal2View}>
+<<<<<<< HEAD
                         <Text style={styles.modal2Text}> 업데이트를 기다려주세요 ...</Text>
                         <Text style={styles.modal2Text} onPress={() => { randomColor(); }}> (테마 변경 추가 예정)</Text>
                         <Text style={styles.modal2Text}> (애니메이션 토글 추가 예정)</Text>
                         <Text></Text>
                         <TouchableOpacity hitSlop={{ top: 40, bottom: 100, left: 40, right: 40 }} onPress={() => setModal2Visible(false)}>
                             <AntDesign name="closecircleo" size={24} color={theme[themeColor].dddgrey}></AntDesign>
+=======
+                        <Text style={{ ...styles.modal2Text, fontSize: 14 }}>Settings</Text>
+                        <Text style={styles.modal2Text}>Theme</Text>
+                        <Text style={styles.modal2Text} onPress={() => changeColor(randomNum())}> 테마 랜덤</Text>
+                        <Text style={styles.modal2Text} onPress={async () => {
+                            const a = !isPlaying;
+                            setIsPlaying(a);
+                            await AsyncStorage.setItem("@isPlaying", JSON.stringify(a));
+                        }}>(애니메이션 토글 추가 예정)</Text>
+                        <Text></Text>
+                        <TouchableOpacity hitSlop={{ top: 10, bottom: 100, left: 40, right: 40 }} onPress={() => setModal2Visible(false)}>
+                            <AntDesign name="closecircleo" size={24} color={theme[color].dddgrey}></AntDesign>
+>>>>>>> fix-date-errir
                         </TouchableOpacity>
                     </View>
                 </Modal>
             </View >
             <View style={styles.cardContainer}>
                 <ScrollView>
-                    <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
+                    <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
                         <Text style={styles.contentText1}>지난 7일간의 과제 달성률은 <Text style={styles.contentText2}>{(averageAchiveNumD()) ? (averageAchiveNumD() * 100).toFixed(2) : "-"}%</Text> 입니다.</Text>
                         {(averageAchiveNumD > 0.8) ? <Text style={styles.contentText1}> 대단해요 !</Text> : null}
                     </BlurView>
-                    <BlurView intensity={40} style={{ ...styles.card }} tint='systemThinMaterial'>
+                    <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
                         <View style={{
                             flex: 1, flexDirection: 'row', justifyContent: 'flex-start', width: '100 %', padding: 20, paddingVertical: -10
 
@@ -121,11 +249,11 @@ export default function PageGraph({ navigation }) {
                         {showGraphWeek ? <GraphWeek /> : <View style={{ height: 190, justifyContent: 'center', flex: 1 }}><Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text></View>}
                     </BlurView>
 
-                    <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
+                    <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
                         <Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text>
                         {/*  <Text style={styles.contentText1}>연속 작업 일 수는 <Text style={styles.contentText2}>188</Text>일 입니다. </Text> */}
                     </BlurView>
-                    <BlurView intensity={40} style={styles.card} tint='systemThinMaterial'>
+                    <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
 
                         <Text style={styles.contentText1}></Text>
                         <Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text>
@@ -143,6 +271,7 @@ export default function PageGraph({ navigation }) {
     )
 
 }
+<<<<<<< HEAD
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -224,3 +353,5 @@ const styles = StyleSheet.create({
         fontSize: 14
     }
 })
+=======
+>>>>>>> fix-date-errir
