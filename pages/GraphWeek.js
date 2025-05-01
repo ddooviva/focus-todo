@@ -7,6 +7,7 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { LineChart } from "react-native-chart-kit";
 import { useColor } from '../ColorContext'
 import { theme } from '../color'
+
 export default GraphWeek = () => {
     const { color, setColor } = useColor();
     const { toDos, setToDos } = useToDos();

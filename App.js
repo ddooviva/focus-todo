@@ -189,16 +189,50 @@ export function HomeScreen({ navigation }) {
   });
 
   async function loadToDos() {
-    const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
-    setAchieveNum(num);
-    setStart(!start);
-    const a = await AsyncStorage.getItem("@color")
-    setColor(a ? a : "black");
-    const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
-    setIsPlaying(b !== undefined ? b : true)
-    const response = await AsyncStorage.getItem("@toDos");
+    try {
+      const response = await AsyncStorage.getItem("@toDos");
+      let loadedToDos = response ? JSON.parse(response) : {};
 
-    if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
+      // 15일 이상 된 ToDo 정리
+      const today = new Date();
+      const fifteenDaysAgo = new Date(today);
+      fifteenDaysAgo.setDate(today.getDate() - 15);
+
+      // 15일 이내의 ToDo만 필터링
+      const filteredToDos = Object.entries(loadedToDos).reduce((acc, [key, todo]) => {
+
+        const dateStr = todo.date.toString();  // 숫자를 문자열로 변환
+        const todoDate = new Date(
+          parseInt(dateStr.substring(0, 4)),    // YYYY
+          parseInt(dateStr.substring(4, 6)) - 1, // MM (0-based)
+          parseInt(dateStr.substring(6, 8))
+        );
+        if (todoDate >= fifteenDaysAgo) {
+          acc[key] = todo;
+        }
+        return acc;
+      }, {});
+
+      // 필터링된 ToDos 저장
+      await AsyncStorage.setItem("@toDos", JSON.stringify(filteredToDos));
+      setToDos(filteredToDos);
+
+      // 나머지 기존 코드
+      const num = Object.entries(filteredToDos)
+        .filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length /
+        Object.entries(filteredToDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length;
+      setAchieveNum(num);
+      setStart(!start);
+
+      const a = await AsyncStorage.getItem("@color")
+      setColor(a ? a : "black");
+      const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
+      setIsPlaying(b !== undefined ? b : true)
+
+    } catch (error) {
+      console.error("Error loading todos:", error);
+      setToDos({});
+    }
   }
 
   const dateHeader = () => {

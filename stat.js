@@ -27,7 +27,7 @@ const calculateWeeklyAchievements = async (toDos) => {
 
     // 주간 데이터 초기화
     if (!achievements[lastWeekStart]) {
-        achievements[lastWeekStart] = { key: lastWeekStart, focus: 0, completed: 0, usage: 0 }; // 초기화
+        achievements[lastWeekStart] = { focus: 0, completed: 0, usage: 0 }; // 초기화
     }
 
     // 저번 주의 끝 날짜 (일요일)
@@ -43,23 +43,20 @@ const calculateWeeklyAchievements = async (toDos) => {
     let completedToDos = 0; // 완료된 ToDo 개수
     // focus, completed, usage 계산
     filteredToDos.forEach(([key, value]) => {
-        const savedDate = convertToDate(value.date); // 날짜 변환
         totalToDos += 1; // 총 ToDo 개수 증가
-
-
 
         // focus 계산
         if (value.star === true && value.progress === 2) {
             achievements[lastWeekStart].focus += 1; // focus 증가
         }
-
         // completed 계산
         if (value.progress === 2) {
             completedToDos += 1; // completed 증가
         }
 
     });
-    achievements[lastWeekStart].completed = totalToDos > 0 ? completedToDos / totalToDos : 0;
+    achievements[lastWeekStart].completed = totalToDos > 0 ? Number((completedToDos / totalToDos).toFixed(2))  // 소수점 2자리로 제한
+        : 0;
 
     // usage 계산: 저번 주 동안 앱을 사용한 날 수
     const uniqueUsageDays = new Set(); // 중복된 날짜를 피하기 위해 Set 사용

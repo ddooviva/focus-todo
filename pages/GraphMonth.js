@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToDos } from '../ToDos';
 import { RealDate, HeaderDate } from '../dateTranslator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,20 +7,18 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { LineChart } from "react-native-chart-kit";
 import { useColor } from '../ColorContext'
 import { theme } from '../color'
+
+
 export default GraphMonth = () => {
     const { color, setColor } = useColor();
-    const { toDos, setToDos } = useToDos();
-    const [helpToDos, setHelpToDos] = useState({});
+    const [stat, setStat] = useState()
+    useEffect(() => {
+        getStat().then(() => console.log("stat", stat))
+    }, []);
+    const getStat = async () => (setStat(await JSON.parse(await AsyncStorage.getItem("@stat"))));
 
-
-
-
-    const getToDos = async () => setHelpToDos(await AsyncStorage.getItem("@toDos"));
-    getToDos();
-    const achiveNumD = (dateMinusNum) => {
-        const a = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(-dateMinusNum, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length
-        if (isNaN(a)) { return 0 } { return a }
-    };
+    console.log("stat", stat)
+    console.log("stat usage", Object.keys(stat))
     const hexToRgba = (hex, opacity) => {
         // 헥스 코드에서 RGB 값 추출
         const r = parseInt(hex.slice(1, 3), 16);
@@ -30,7 +28,6 @@ export default GraphMonth = () => {
         // RGBA 형식으로 변환
         return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     };
-
     return (
 
         <View>
@@ -41,14 +38,15 @@ export default GraphMonth = () => {
                     datasets: [
                         {
                             data: [
-                                achiveNumD(7) * 100,
-                                achiveNumD(6) * 100,
-                                achiveNumD(5) * 100,
-                                achiveNumD(4) * 100,
-                                achiveNumD(3) * 100,
-                                achiveNumD(2) * 100,
-                                achiveNumD(1) * 100,
-                                achiveNumD(0) * 100,
+                                1, 2, 3, 4, 5, 6, 7, 8
+                            ]
+                        }, {
+                            data: [
+                                3, 4, 5, 6, 7, 8, 9, 10
+                            ]
+                        }, {
+                            data: [
+                                1, 2, 3, 4, 5, 6, 7, 8
                             ]
                         },]
                 }}
@@ -90,5 +88,5 @@ export default GraphMonth = () => {
             />
         </View>
     )
-}
+};
 

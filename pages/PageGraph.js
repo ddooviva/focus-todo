@@ -18,6 +18,7 @@ import { usePlay } from '../PlayContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WeekGreeting from './WeekGreeting'
 import { calculateAndSaveWeeklyStats, getWeekStats, getLatestStats, autoGenerateStats } from '../stat';
+import GraphMonth from './GraphMonth';
 
 export default function PageGraph({ navigation }) {
     const { color, setColor } = useColor();
@@ -25,6 +26,8 @@ export default function PageGraph({ navigation }) {
     const [modal1Visible, setModal1Visible] = useState(false);
     const [modal2Visible, setModal2Visible] = useState(false);
     const [showGraphWeek, setShowGraphWeek] = useState(true);
+    const [showGraphMonth, setShowGraphMonth] = useState(true);
+
     const { toDos, setToDos } = useToDos();
     const { isPlaying, setIsPlaying } = usePlay();
 
@@ -255,17 +258,17 @@ export default function PageGraph({ navigation }) {
                             flex: 1, flexDirection: 'row', justifyContent: 'flex-start', width: '100 %', padding: 20, paddingVertical: -10
 
                         }}>
-                            <TouchableOpacity onPress={() => { setShowGraphWeek(true) }}>
+                            <TouchableOpacity onPress={() => { setShowGraphWeek(true); setShowGraphMonth(false) }}>
                                 <View style={{ backgroundColor: theme[color].dddgrey, opacity: (showGraphWeek ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, marginRight: 6 }}>
                                     <Text style={{ fontSize: 16, color: theme[color].bg, fontWeight: "bold" }}>Week</Text>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setShowGraphWeek(false)}>
+                            <TouchableOpacity onPress={() => { setShowGraphWeek(false); setShowGraphMonth(true) }}>
                                 <View style={{ backgroundColor: theme[color].dddgrey, opacity: (!showGraphWeek ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
                                     <Text style={{ fontSize: 16, color: theme[color].bg, fontWeight: "bold" }}>Month</Text>
                                 </View>
                             </TouchableOpacity></View>
-                        {showGraphWeek ? <GraphWeek /> : <View style={{ height: 190, justifyContent: 'center', flex: 1 }}><Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text></View>}
+                        {showGraphWeek ? <GraphWeek /> : <View style={{ height: 190, justifyContent: 'center', flex: 1 }}><GraphMonth /><Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text></View>}
                     </BlurView>
 
                     <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
