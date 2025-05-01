@@ -22,8 +22,9 @@ import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-
 import Animated, { useSharedValue, withTiming, useAnimatedStyle, Easing, } from 'react-native-reanimated';
 import { ColorProvider, useColor } from './ColorContext';
 import { PlayProvider, usePlay } from './PlayContext';
-import { calculateAndSaveWeeklyStats, getLatestStats, getLastTwoWeeksStats } from './stat';
+import { calculateAndSaveWeeklyStats, getLatestStats, getLastTwoWeeksStats, testStat } from './stat';
 import { WeekGreeting } from './pages/WeekGreeting'
+import { testToDos } from './ToDos';
 
 const Stack = createNativeStackNavigator();
 
@@ -72,18 +73,9 @@ export function HomeScreen({ navigation }) {
   useEffect(() => {
     loadToDos();
     setStart(!start)
-    console.log(toDos)
   }, [])
-  useEffect(() => {
-    const updateStats = async () => {
-      await calculateAndSaveWeeklyStats(toDos);
-    };
-    updateStats();
-  }, [toDos]);
-  useEffect(() => setAchieveNum(() => {
-    const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
-    return num;
-  }), [toDos, pageLocation]);
+
+
 
   useEffect(() =>
     setStart(!start), [pageLocation, navigation]);
@@ -115,28 +107,44 @@ export function HomeScreen({ navigation }) {
     animatedBoxValue.value = withTiming(((-470 * achieveNum) / 667 * window.height), { duration: 4444, easing: Easing.out(Easing.back(1)) });
 
   }, [achieveNum]);
+  useEffect(() => setAchieveNum(() => {
+    const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
+    return num;
+  }), [toDos, pageLocation]);
+
+
+  useEffect(() => {
+    const updateStats = async () => {
+      await calculateAndSaveWeeklyStats(toDos);
+    };
+    updateStats();
+  }, [toDos]);
+
   useEffect(() => {
     const checkAndShowStats = async () => {
       try {
         const today = new Date();
         const thisWeekMonday = new Date(today);
-        thisWeekMonday.setDate(today.getDate() - today.getDay() + 1);
+        thisWeekMonday.setDate(today.getDate() - today.getDay() + 1);  // 이번주 월요일
         thisWeekMonday.setHours(0, 0, 0, 0);
 
+        // 마지막으로 앱을 열었던 날짜 확인
         const lastAppOpenDate = await AsyncStorage.getItem('@lastAppOpenDate');
-        const isFirstTimeThisWeek = !lastAppOpenDate ||
-          new Date(lastAppOpenDate) < thisWeekMonday;
 
-        if (isFirstTimeThisWeek) {
+        // 이번주 처음 앱을 여는 경우
+        if (!lastAppOpenDate || new Date(lastAppOpenDate) < thisWeekMonday) {
           const twoWeeksStats = await getLastTwoWeeksStats();
-          if (twoWeeksStats) {
-            setWeekStats(twoWeeksStats.lastWeek);
-            setPreviousWeekStats(twoWeeksStats.previousWeek);  // ⭐ 이전 주 데이터 설정
+          console.log("가져온 통계:", twoWeeksStats); // 데이터 확인용
+
+          if (twoWeeksStats && twoWeeksStats.stats) {
+            setWeekStats(twoWeeksStats.stats);
+            setPreviousWeekStats(twoWeeksStats.previousStats);
             setShowModal(true);
           }
-        }
 
-        await AsyncStorage.setItem('@lastAppOpenDate', today.toISOString());
+          // 현재 날짜를 마지막 열람 날짜로 저장
+          await AsyncStorage.setItem('@lastAppOpenDate', today.toISOString());
+        }
       } catch (error) {
         console.error('Error checking stats:', error);
       }
@@ -144,8 +152,18 @@ export function HomeScreen({ navigation }) {
 
     checkAndShowStats();
   }, []);
+  const resetLastOpenDate = async () => {
+    try {
+      await AsyncStorage.removeItem('@lastAppOpenDate');
+      console.log("마지막 열람 날짜 초기화 완료!");
+    } catch (error) {
+      console.error("초기화 실패:", error);
+    }
+  };
+
   const animatedWaveValue = useSharedValue((-950 * achieveNum) / 667 * window.height);
   const animatedBoxValue = useSharedValue(((-470 * achieveNum) / 667 * window.height));
+
 
   // 애니메이션 스타일 정의
   const animatedStyleWave = useAnimatedStyle(() => {
@@ -170,9 +188,7 @@ export function HomeScreen({ navigation }) {
     };
   });
 
-
   async function loadToDos() {
-    const response = await AsyncStorage.getItem("@toDos");
     const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
     setAchieveNum(num);
     setStart(!start);
@@ -180,8 +196,11 @@ export function HomeScreen({ navigation }) {
     setColor(a ? a : "black");
     const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
     setIsPlaying(b !== undefined ? b : true)
+    const response = await AsyncStorage.getItem("@toDos");
+
     if (response) { setToDos(JSON.parse(response)) } else { setToDos({}) }
   }
+
   const dateHeader = () => {
     const n = String(RealDate(Date.now() + 86400000 * pageLocation));
     const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
@@ -245,6 +264,8 @@ export function HomeScreen({ navigation }) {
       setToDos(sorting(newToDos));
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
       await saveToDos(sorting(newToDos));
+      console.log("방가", JSON.parse(await AsyncStorage.getItem("@stat")))
+
 
     }
 
@@ -253,7 +274,8 @@ export function HomeScreen({ navigation }) {
       newToDos[key].edit = true;
       setToDos(sorting(newToDos));
       await saveToDos(sorting(newToDos));
-      await AsyncStorage.removeItem('@lastAppOpenDate');
+      console.log("good")
+      console.log("gooddd", JSON.parse(AsyncStorage.getItem('@lastAppOpenDate')))
     }
 
     const editTextEnd = async (e, key) => {
@@ -397,7 +419,7 @@ export function HomeScreen({ navigation }) {
       <View style={{ ...styles.container }}>
         <WeekGreeting
           visible={showModal}
-          onClose={() => setShowModal(false)}
+          onClose={() => { setShowModal(false) }}
           stats={weekStats}
           previousStats={previousWeekStats}  // ⭐ 이 prop을 추가!
         />
@@ -428,6 +450,7 @@ export function HomeScreen({ navigation }) {
           <LottieView
             key={animationKey}
             autoPlay
+            loop={false}
             style={{
               zIndex: 10,
               position: "absolute",
@@ -481,6 +504,7 @@ export function HomeScreen({ navigation }) {
             )}
           </ScrollView>
         </View >
+        <Text onPress={() => resetLastOpenDate()}>MOdal show!</Text>
         <StatusBar style="dark" />
       </View >
     </PanGestureHandler>

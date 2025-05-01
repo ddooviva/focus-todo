@@ -160,7 +160,6 @@ export default function PageGraph({ navigation }) {
 
     return (
         <View style={styles.container}>
-
             {isPlaying ? <LottieView
                 key={Date.now()}// key는 LottieView에 직접 추가
                 autoPlay={true}

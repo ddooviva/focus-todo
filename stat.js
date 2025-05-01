@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // 날짜를 변환하는 함수
+
+
 const convertToDate = (intDate) => {
     const strDate = intDate.toString();
     const year = parseInt(strDate.substring(0, 4));  // ⭐ YYYYMMDD 형식이라면 이렇게
@@ -71,8 +73,6 @@ const calculateWeeklyAchievements = async (toDos) => {
 };
 
 const calculateAndSaveWeeklyStats = async (toDos) => {
-
-
     try {
         const existingStats = await AsyncStorage.getItem('@stat');
         const stats = existingStats ? JSON.parse(existingStats) : {};
@@ -175,31 +175,37 @@ const getLastTwoWeeksStats = async () => {
         // 최근 2주 데이터만 가져오기
         if (weeks.length >= 2) {
             return {
-                lastWeek: {
+                stats: {
                     weekStart: weeks[0],
                     ...parsedStats[weeks[0]]
                 },
-                previousWeek: {
+                previousStats: {
                     weekStart: weeks[1],
                     ...parsedStats[weeks[1]]
                 }
             };
         } else if (weeks.length === 1) {
             return {
-                lastWeek: {
+                stats: {
                     weekStart: weeks[0],
                     ...parsedStats[weeks[0]]
                 },
-                previousWeek: null
+                previousStats: null
             };
         }
-        return null;
+        // 데이터가 없는 경우 명시적으로 처리
+        return {
+            stats: null,
+            previousStats: null
+        };
     } catch (error) {
         console.error('Error getting two weeks stats:', error);
-        return null;
+        return {
+            stats: null,
+            previousStats: null
+        };
     }
 };
-
 // 날짜를 YYYY.MM.DD 형식으로 포맷팅하는 함수
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -209,5 +215,30 @@ const formatDate = (dateString) => {
 
     return `${year}.${month}.${day}`;
 };
-
-export { getLastTwoWeeksStats, formatDate, calculateAndSaveWeeklyStats, getWeekStats, getLatestStats, autoGenerateStats };
+const testStat = {
+    "2025-03-31": {
+        "completed": 0.7317073170731707,
+        "focus": 13,
+        "key": "2025-03-31",
+        "usage": 6
+    },
+    "2025-04-07": {
+        "completed": 0.2,
+        "focus": 1,
+        "key": "2025-04-07",
+        "usage": 2
+    },
+    "2025-04-14": {
+        "completed": 0.3,
+        "focus": 12,
+        "key": "2025-04-14",
+        "usage": 3
+    },
+    "2025-04-21": {
+        "completed": 0.7317073170731707,
+        "focus": 13,
+        "key": "2025-04-21",
+        "usage": 6
+    },
+}
+export { testStat, getLastTwoWeeksStats, formatDate, calculateAndSaveWeeklyStats, getWeekStats, getLatestStats, autoGenerateStats };
