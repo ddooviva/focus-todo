@@ -11,11 +11,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { usePageLocation } from '../PageLocationContext'; // Context 훅 임포트
 import GraphWeek from './GraphWeek'
 import { useToDos } from '../ToDos';
-import { HeaderDate } from '../dateTranslator';
+import { RealDate, HeaderDate } from '../dateTranslator';
 import { theme } from '../color';
 import { useColor } from '../ColorContext'
 import { usePlay } from '../PlayContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function PageGraph({ navigation }) {
     const { color, setColor } = useColor();
@@ -26,14 +27,14 @@ export default function PageGraph({ navigation }) {
     const { isPlaying, setIsPlaying } = usePlay();
     const achiveNumD = (dateMinusNum) => {
         const a = (Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length === 0) ? 0 :
-            Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(-dateMinusNum, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === - dateMinusNum).length
+            Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(-dateMinusNum, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length
         return a;
     };
     const averageAchiveNumD = () => {
         const a = (i) => {
             if (achiveNumD(i) === 0) { return null } else { return achiveNumD(i) };
         };
-        return ((a(1) + a(2) + a(3) + a(4) + a(5) + a(6) + a(7) + a(0)) / 8);
+        return ((a(1) + a(2) + a(3) + a(4) + a(5) + a(6) + a(7)) / 7);
         return ((achiveNumD(7) + achiveNumD(6) + achiveNumD(5) + achiveNumD(4) + achiveNumD(3) + achiveNumD(2) + achiveNumD(1)) / 7).toFixed(3)
     }
     const changeColor = async (a) => {

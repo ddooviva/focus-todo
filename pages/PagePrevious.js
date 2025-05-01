@@ -196,6 +196,7 @@ export default function PagePrevious({ }) {
             margin: 5,
             borderRadius: 20,
             alignItems: "center",
+            opacity: 0.93
         },
         listText: {
             fontWeight: 500,
@@ -318,9 +319,9 @@ export default function PagePrevious({ }) {
                                                     <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                                         onPress={() => moveToDo(key)}>
                                                         {previousToDo[key].progress === 2 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name={"checkbox-marked"} size={25} color={theme[color].dddgrey}></MaterialCommunityIcons>
-                                                            : previousToDo[key].progress === 3 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name="checkbox-blank" size={25} color={theme[color].dddgrey} /> : <MaterialCommunityIcons style={{ paddingRight: 18 }} name="arrow-right" size={22} color={theme[color].dddgrey} />}
+                                                            : previousToDo[key].progress === 3 ? <MaterialCommunityIcons style={{ paddingRight: 17 }} name="checkbox-blank-badge" size={23} color={theme[color].dddgrey} /> : <MaterialCommunityIcons style={{ paddingRight: 18 }} name="arrow-right" size={22} color={theme[color].dddgrey} />}
                                                     </TouchableOpacity>
-                                                    <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress > 1 ? "line-through" : "none") }}>{previousToDo[key].text}</Text>
+                                                    <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress === 2 ? "line-through" : "none") }}>{previousToDo[key].text}</Text>
                                                 </View>)
                                         })
                                         }

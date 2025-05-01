@@ -70,7 +70,7 @@ export function HomeScreen({ navigation }) {
 
   useEffect(() => setAchieveNum(() => {
     const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
-    setStart(false);
+    setStart(!start);
     return num;
   }), [toDos, pageLocation]);
 
@@ -88,9 +88,9 @@ export function HomeScreen({ navigation }) {
         console.log("저장된 날짜:", JSON.parse(savedDate));
       }
     };
-
     checkFirstLaunch(); // 비동기 함수 호출
   }, []);
+
   useEffect(
     () => {
       animatedWaveValue.value = withTiming(((-950 * achieveNum) / 667 * window.height), { duration: 0, easing: Easing.out(Easing.back(1)) });
@@ -134,7 +134,7 @@ export function HomeScreen({ navigation }) {
     const response = await AsyncStorage.getItem("@toDos");
     const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
     setAchieveNum(num);
-    setStart(true);
+    setStart(!start);
     const a = await AsyncStorage.getItem("@color")
     setColor(a ? a : "black");
     const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
@@ -329,6 +329,8 @@ export function HomeScreen({ navigation }) {
         margin: 5,
         borderRadius: 20,
         alignItems: "center",
+        opacity: 0.93
+
       },
       listText: {
         fontWeight: 500,
@@ -425,7 +427,7 @@ export function HomeScreen({ navigation }) {
                   ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme[color].llgrey : toDos[key].progress === 2 ? theme[color].dgrey : theme[color].llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme[color].dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme[color].ddgrey : theme[color].llgrey)
                 }}>
                   <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 15 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-outline")} size={25} color={theme[color].dddgrey} /></TouchableOpacity>
+                    onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 15 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[color].dddgrey} /></TouchableOpacity>
                   {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
                     <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
                 </View>) : null
