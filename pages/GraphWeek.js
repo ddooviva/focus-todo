@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useToDos } from '../ToDos';
-import { RealDate, TodayDate } from '../dateTranslator';
+import { RealDate, HeaderDate } from '../dateTranslator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
@@ -14,7 +14,7 @@ export default GraphWeek = () => {
     const getToDos = async () => setHelpToDos(await AsyncStorage.getItem("@toDos"));
     getToDos();
     const achiveNumD = (dateMinusNum) => {
-        const a = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate() - dateMinusNum).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length
+        const a = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(-dateMinusNum, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length
         if (isNaN(a)) { return 0 } { return a }
     };
     const hexToRgba = (hex, opacity) => {

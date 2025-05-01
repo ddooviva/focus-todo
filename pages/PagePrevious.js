@@ -5,7 +5,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { usePageLocation } from '../PageLocationContext'; // Context 훅 임포트
 import { useToDos } from '../ToDos';
-import { RealDate, TodayDate } from '../dateTranslator';
+import { RealDate, HeaderDate } from '../dateTranslator';
 import LottieView from 'lottie-react-native';
 import * as Haptics from 'expo-haptics'
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
@@ -101,16 +101,16 @@ export default function PagePrevious({ }) {
         };
     });
 
-    const previousToDo = Object.fromEntries(Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() + pageLocation));
+    const previousToDo = Object.fromEntries(Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)));
     const achieveNum = Object.entries(previousToDo).filter(([key, value]) => value.progress === 2).length / Object.entries(previousToDo).length;
-
-    const dateHeader = () => {
-        const n = String(RealDate(Date.now() + 86400000 * pageLocation));
-        const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
-        const dayOfWeek = date.getDay();
-        const days = ["일", "월", "화", "수", "목", "금", "토"];
-        return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8) + " (" + days[dayOfWeek] + ")"
-    };
+    /* 
+        const dateHeader = () => {
+            const n = String(RealDate(Date.now() + 86400000 * pageLocation));
+            const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
+            const dayOfWeek = date.getDay();
+            const days = ["일", "월", "화", "수", "목", "금", "토"];
+            return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8) + " (" + days[dayOfWeek] + ")"
+        }; */
     const onSwipe = (event) => {
         if (event.nativeEvent.translationX > 50 && pageLocation > -7) {
             // 오른쪽으로 스와이프
@@ -280,13 +280,13 @@ export default function PagePrevious({ }) {
                         <TouchableOpacity onPress={() => goHome()}>
                             <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme[color].dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
 
-                                <Text style={styles.date} >{dateHeader()}</Text>
+                                <Text style={styles.date} >{HeaderDate(pageLocation, true)}</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }}><AntDesign name="caretright" size={24} color={theme[color].ddgrey}></AntDesign></TouchableOpacity>
                     </View>
                     {
-                        Object.keys(previousToDo).length === 0 ?
+                        Object.keys(previousToDo).length === 0 && isPlaying ?
                             <View style={{ ...styles.listContainer, alignItems: 'center' }}>
                                 <Text style={styles.nodataText}></Text>
                                 <LottieView
@@ -303,26 +303,29 @@ export default function PagePrevious({ }) {
                                     }}
                                 ></LottieView>
                             </View>
-                            :
-                            <View style={{ ...styles.listContainer }}>
+                            : Object.keys(previousToDo).length === 0 && !isPlaying ? <View style={{ ...styles.listContainer }}>
+                                <Text style={styles.nodataText}>no data</Text>
 
-                                <ScrollView>
-                                    {Object.keys(previousToDo).map((key) => {
-                                        return (
-                                            <View key={key} style={{
-                                                ...styles.list, backgroundColor: (previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[color].llgrey : previousToDo[key].progress === 2 ? theme[color].dgrey : theme[color].llgrey), borderWidth: 2, borderColor: (previousToDo[key].progress === 2 ? theme[color].dgrey : previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[color].ddgrey : theme[color].llgrey)
-                                            }}>
-                                                <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                                    onPress={() => moveToDo(key)}>
-                                                    {previousToDo[key].progress === 2 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name={"checkbox-marked"} size={25} color={theme[color].dddgrey}></MaterialCommunityIcons>
-                                                        : previousToDo[key].progress === 3 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name="checkbox-blank" size={25} color={theme[color].dddgrey} /> : <MaterialCommunityIcons style={{ paddingRight: 10 }} name="arrow-right-bold-outline" size={25} color={theme[color].dddgrey} />}
-                                                </TouchableOpacity>
-                                                <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress > 1 ? "line-through" : "none") }}>{previousToDo[key].text}</Text>
-                                            </View>)
-                                    })
-                                    }
-                                </ScrollView>
-                            </View>
+                            </View> :
+                                <View style={{ ...styles.listContainer }}>
+
+                                    <ScrollView>
+                                        {Object.keys(previousToDo).map((key) => {
+                                            return (
+                                                <View key={key} style={{
+                                                    ...styles.list, backgroundColor: (previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[color].llgrey : previousToDo[key].progress === 2 ? theme[color].dgrey : theme[color].llgrey), borderWidth: 2, borderColor: (previousToDo[key].progress === 2 ? theme[color].dgrey : previousToDo[key].star && previousToDo[key].progress !== 2 ? theme[color].ddgrey : theme[color].llgrey)
+                                                }}>
+                                                    <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                                        onPress={() => moveToDo(key)}>
+                                                        {previousToDo[key].progress === 2 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name={"checkbox-marked"} size={25} color={theme[color].dddgrey}></MaterialCommunityIcons>
+                                                            : previousToDo[key].progress === 3 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name="checkbox-blank" size={25} color={theme[color].dddgrey} /> : <MaterialCommunityIcons style={{ paddingRight: 18 }} name="arrow-right" size={22} color={theme[color].dddgrey} />}
+                                                    </TouchableOpacity>
+                                                    <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress > 1 ? "line-through" : "none") }}>{previousToDo[key].text}</Text>
+                                                </View>)
+                                        })
+                                        }
+                                    </ScrollView>
+                                </View>
                     }
                     <StatusBar style="dark"></StatusBar>
                 </View >

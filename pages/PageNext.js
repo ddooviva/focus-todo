@@ -6,7 +6,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { usePageLocation } from '../PageLocationContext'; // Context 훅 임포트
-import { RealDate, TodayDate } from '../dateTranslator';
+import { RealDate, HeaderDate } from '../dateTranslator';
 import { useToDos } from '../ToDos';
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,7 +22,7 @@ export default function PageNext({ }) {
     const { pageLocation, setPageLocation } = usePageLocation();
     const { toDos, setToDos } = useToDos();
 
-    const nextToDo = Object.fromEntries(Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() + pageLocation));
+    const nextToDo = Object.fromEntries(Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)));
 
     async function saveToDos(toSave) {
         await AsyncStorage.setItem("@toDos", JSON.stringify(toSave))
@@ -71,7 +71,7 @@ export default function PageNext({ }) {
         setToDos(sorting(newToDos));
         await saveToDos(sorting(newToDos));
         setAchiveNum(() => {
-            const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
+            const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
             return num;
         });
     }
@@ -107,13 +107,13 @@ export default function PageNext({ }) {
             await saveToDos(sorting(newToDos));
         }
     }
-    const dateHeader = () => {
+    /* const dateHeader = () => {
         const n = String(RealDate(Date.now() + 86400000 * pageLocation));
         const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
         const dayOfWeek = date.getDay();
         const days = ["일", "월", "화", "수", "목", "금", "토"];
         return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8) + " (" + days[dayOfWeek] + ")"
-    };
+    }; */
     const onSwipe = (event) => {
         if (event.nativeEvent.translationX > 50) {
             const countMinus = (a) => a - 1;
@@ -207,7 +207,7 @@ export default function PageNext({ }) {
                         <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[color].ddgrey} /></TouchableOpacity>
                         <TouchableOpacity onPress={() => goHome()}>
                             <View style={{ borderRadius: 10, borderWidth: 2, borderColor: theme[color].dddgrey, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 10 }}>
-                                <Text style={styles.date}>{dateHeader()}</Text>
+                                <Text style={styles.date}>{HeaderDate(pageLocation, true)}</Text>
                             </View>
                         </TouchableOpacity>
                         {pageLocation !== +7 ? <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme[color].ddgrey} /></TouchableOpacity> : <TouchableOpacity><AntDesign name="caretright" size={24} color={theme[color].llgrey} /></TouchableOpacity>}

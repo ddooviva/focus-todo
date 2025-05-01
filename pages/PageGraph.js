@@ -11,7 +11,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { usePageLocation } from '../PageLocationContext'; // Context 훅 임포트
 import GraphWeek from './GraphWeek'
 import { useToDos } from '../ToDos';
-import { TodayDate } from '../dateTranslator';
+import { HeaderDate } from '../dateTranslator';
 import { theme } from '../color';
 import { useColor } from '../ColorContext'
 import { usePlay } from '../PlayContext';
@@ -25,8 +25,8 @@ export default function PageGraph({ navigation }) {
     const { toDos, setToDos } = useToDos();
     const { isPlaying, setIsPlaying } = usePlay();
     const achiveNumD = (dateMinusNum) => {
-        const a = (Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length === 0) ? 0 :
-            Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate() - dateMinusNum).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate() - dateMinusNum).length
+        const a = (Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length === 0) ? 0 :
+            Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(-dateMinusNum, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === - dateMinusNum).length
         return a;
     };
     const averageAchiveNumD = () => {

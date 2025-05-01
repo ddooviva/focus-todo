@@ -14,7 +14,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { PageLocationProvider } from './PageLocationContext';
 import { usePageLocation } from './PageLocationContext'; // Context 훅 임포트
-import { RealDate, TodayDate } from './dateTranslator';
+import { RealDate, HeaderDate } from './dateTranslator';
 import { ToDosProvider } from './ToDos';
 import { useToDos } from './ToDos';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -69,7 +69,7 @@ export function HomeScreen({ navigation }) {
   }, [])
 
   useEffect(() => setAchieveNum(() => {
-    const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
+    const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
     setStart(false);
     return num;
   }), [toDos, pageLocation]);
@@ -79,7 +79,7 @@ export function HomeScreen({ navigation }) {
     const checkFirstLaunch = async () => {
       const isFirstLaunch = await AsyncStorage.getItem('isFirstLaunch');
       if (isFirstLaunch === null) {
-        const currentDate = TodayDate();
+        const currentDate = HeaderDate(pageLocation, false);
         await AsyncStorage.setItem('@firstDate', JSON.stringify(currentDate));
         await AsyncStorage.setItem('isFirstLaunch', 'false'); // 이후에는 다시 실행되지 않도록 설정
         console.log("앱 처음 실행 날짜 저장:", currentDate);
@@ -132,7 +132,7 @@ export function HomeScreen({ navigation }) {
 
   async function loadToDos() {
     const response = await AsyncStorage.getItem("@toDos");
-    const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === TodayDate()).length / Object.entries(toDos).filter(([key, value]) => value.date === TodayDate()).length
+    const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
     setAchieveNum(num);
     setStart(true);
     const a = await AsyncStorage.getItem("@color")
@@ -420,12 +420,12 @@ export function HomeScreen({ navigation }) {
 
           <ScrollView >
             {Object.keys(toDos).map((key) => {
-              return TodayDate() === toDos[key].date ? (
+              return HeaderDate(pageLocation, false) === toDos[key].date ? (
                 <View key={key} style={{
                   ...styles.list, backgroundColor: (toDos[key].star && toDos[key].progress !== 2 ? theme[color].llgrey : toDos[key].progress === 2 ? theme[color].dgrey : theme[color].llgrey), borderWidth: 2, borderColor: (toDos[key].progress === 2 ? theme[color].dgrey : toDos[key].star && toDos[key].progress !== 2 ? theme[color].ddgrey : theme[color].llgrey)
                 }}>
                   <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 15 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-marked")} size={25} color={theme[color].dddgrey} /></TouchableOpacity>
+                    onPress={() => checking(key)}><MaterialCommunityIcons style={{ paddingRight: 15 }} name={toDos[key].progress === 0 ? "checkbox-blank-outline" : (toDos[key].progress === 1 ? "checkbox-intermediate" : "checkbox-outline")} size={25} color={theme[color].dddgrey} /></TouchableOpacity>
                   {(!toDos[key].edit ? <Text style={{ ...styles.listText, textDecorationLine: (toDos[key].progress === 2 ? "line-through" : "none") }} onPress={() => editTextStart(key)} onLongPress={() => giveStar(key)}>{toDos[key].text}</Text> :
                     <TextInput style={{ ...styles.listText }} onEndEditing={(event) => editTextEnd(event, key)} autoFocus defaultValue={toDos[key].text}></TextInput>)}
                 </View>) : null
