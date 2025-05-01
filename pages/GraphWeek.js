@@ -59,7 +59,7 @@ export default GraphWeek = () => {
                 chartConfig={{
                     backgroundGradientFromOpacity: 0,
                     backgroundGradientToOpacity: 0,
-                    fillShadowGradientFrom: theme[color].dddgrey,
+                    fillShadowGradientFrom: theme[color].ddgrey,
                     fillShadowGradientFromOpacity: 1,
                     fillShadowGradientTo: theme[color].dddgrey,
                     fillShadowGradientToOpacity: 0.0,

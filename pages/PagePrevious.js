@@ -319,7 +319,7 @@ export default function PagePrevious({ }) {
                                                     <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                                         onPress={() => moveToDo(key)}>
                                                         {previousToDo[key].progress === 2 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name={"checkbox-marked"} size={25} color={theme[color].dddgrey}></MaterialCommunityIcons>
-                                                            : previousToDo[key].progress === 3 ? <MaterialCommunityIcons style={{ paddingRight: 17 }} name="checkbox-blank-badge" size={23} color={theme[color].dddgrey} /> : <MaterialCommunityIcons style={{ paddingRight: 18 }} name="arrow-right" size={22} color={theme[color].dddgrey} />}
+                                                            : previousToDo[key].progress === 3 ? <MaterialCommunityIcons style={{ paddingRight: 15 }} name="plus-box" size={25} color={theme[color].dddgrey} /> : <MaterialCommunityIcons style={{ paddingRight: 15 }} name="plus-box-outline" size={25} color={theme[color].dddgrey} />}
                                                     </TouchableOpacity>
                                                     <Text style={{ ...styles.listText, textDecorationLine: (previousToDo[key].progress === 2 ? "line-through" : "none") }}>{previousToDo[key].text}</Text>
                                                 </View>)

@@ -7,10 +7,14 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { LineChart } from "react-native-chart-kit";
 import { useColor } from '../ColorContext'
 import { theme } from '../color'
-export default GraphWeek = () => {
+export default GraphMonth = () => {
     const { color, setColor } = useColor();
     const { toDos, setToDos } = useToDos();
     const [helpToDos, setHelpToDos] = useState({});
+
+
+
+
     const getToDos = async () => setHelpToDos(await AsyncStorage.getItem("@toDos"));
     getToDos();
     const achiveNumD = (dateMinusNum) => {
