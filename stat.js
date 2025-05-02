@@ -146,7 +146,6 @@ const getLatestStats = async () => {
 
         const weeks = Object.keys(parsedStats).sort().reverse();
         const a = await AsyncStorage.getItem('@stat');
-        console.log(JSON.parse(a));
         if (weeks.length > 0) {
             const latestWeek = weeks[0];
             return {

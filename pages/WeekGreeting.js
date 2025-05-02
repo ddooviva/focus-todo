@@ -6,7 +6,8 @@ import { useColor } from '../ColorContext';
 import * as Haptics from 'expo-haptics';
 import LottieView from 'lottie-react-native';
 import { BlurView } from 'expo-blur';
-
+import { BarChart } from 'react-native-chart-kit';
+import { VictoryChart, VictoryBar, VictoryAxis, VictoryTheme } from 'victory-native';
 // TrendArrow 컴포넌트 수정
 const TrendArrow = ({ current, previous }) => {
     if (!previous || previous === 0) return null;  // ⭐ previous가 없으면 아무것도 표시하지 않음
@@ -15,9 +16,9 @@ const TrendArrow = ({ current, previous }) => {
     if (percentChange > 0) {
         return <Text style={{ color: '#2ecc71', fontSize: 25, fontWeight: 'bold' }}>↑</Text>;
     } else if (percentChange < 0) {
-        return <Text style={{ color: '#e74c3c', fontSize: 20 }}>↓</Text>;
+        return <Text style={{ color: '#e74c3c', fontSize: 25, fontWeight: 'bold' }}>↓</Text>;
     }
-    return <Text style={{ color: '#95a5a6', fontSize: 20 }}>−</Text>;
+    return <Text style={{ color: '#95a5a6', fontSize: 25, fontWeight: 'bold' }}>−</Text>;
 };
 
 // 변화량을 계산하는 함수
@@ -28,14 +29,13 @@ const calculateChange = (current, previous) => {
     return percentChange > 0 ? `(지지난주 대비 +${percentChange.toFixed(1)}%)` : `(지지난주 대비 ${percentChange.toFixed(1)}%)`;
 };
 
-function WeekGreeting({ visible, onClose, stats, previousStats }) {
-    const { color, setColor } = useColor();
+function WeekGreeting({ visible, color, onClose, stats, previousStats }) {
     const [isClicked, setIsClicked] = useState(false);
     const [showAnimation, setShowAnimation] = useState(false);
     const click = () => {
         setShowAnimation(true);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setIsClicked(true), console.log("click")
+        setIsClicked(true)
         setTimeout(() => {
             if ((stats.focus > 15 && stats.usage > 5 && stats.completed > 0.6) || (stats.focus > previousStats.focus && stats.usage > previousStats.usage && stats.completed > previousStats.completed)) {
                 for (let i = 0; i < 3; i++) {
@@ -131,7 +131,15 @@ function WeekGreeting({ visible, onClose, stats, previousStats }) {
             color: theme[color].dddgrey
         }
     });
+    const hexToRgba = (hex, opacity) => {
+        // 헥스 코드에서 RGB 값 추출
+        const r = parseInt(hex.slice(1, 3), 16) - 20;
+        const g = parseInt(hex.slice(3, 5), 16) - 20;
+        const b = parseInt(hex.slice(5, 7), 16) - 20;
 
+        // RGBA 형식으로 변환
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    };
     if (!stats) return null;
     const animationPaths1 = {
         black: require('../assets/thumbsup/black.json'),
@@ -141,7 +149,7 @@ function WeekGreeting({ visible, onClose, stats, previousStats }) {
         peach: require('../assets/thumbsup/peach.json'),
         cherry: require('../assets/thumbsup/cherry.json'),
         pink: require('../assets/thumbsup/pink.json'),
-        beige: require('../assets/thumbsup/beige.json'),
+        brown: require('../assets/thumbsup/brown.json'),
         darkblue: require('../assets/thumbsup/darkblue.json'),
         darkgreen: require('../assets/thumbsup/darkgreen.json'),
         natural: require('../assets/thumbsup/natural.json'),
@@ -164,8 +172,8 @@ function WeekGreeting({ visible, onClose, stats, previousStats }) {
                             <BlurView
                                 intensity={10}
                                 style={{
-                                    width: '100%',
-                                    height: '100%',
+                                    width: '200%',
+                                    height: '300%',
                                     zIndex: 2,
                                     position: 'absolute'
                                 }}>
@@ -173,17 +181,14 @@ function WeekGreeting({ visible, onClose, stats, previousStats }) {
                                     autoPlay={true}
                                     loop={false}
                                     style={{
-                                        top: '-25%',
-                                        left: '-25%',
-                                        width: '150%',
-                                        height: '150%',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100%',
                                         zIndex: 3,
                                     }}
                                     source={animationData1}
                                 />
-                                <Text style={{
-                                    color: theme[color].dddgrey, fontSize: 30, fontWeight: '700', position: 'absolute', top: '80 %', left: '25 %', zIndex: 1
-                                }}>Great Job!</Text>
                             </BlurView> : null}
                         <View style={{ backgroundColor: theme[color].dddgrey, marginVertical: 10, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10 }}>
                             <Text style={{ ...styles.title, fontSize: 24, color: theme[color].bg }}>주간 성장 리포트</Text>
@@ -192,6 +197,30 @@ function WeekGreeting({ visible, onClose, stats, previousStats }) {
                             <Text style={styles.dateText}>
                                 {formatDate(stats.weekStart)} ~ {formatDate(new Date(stats.weekStart).setDate(new Date(stats.weekStart).getDate() + 6))}
                             </Text>
+                            <VictoryChart theme={VictoryTheme.material}>
+                                <VictoryAxis />
+                                <VictoryAxis dependentAxis />
+                                <VictoryBar
+                                    data={[
+                                        { x: 'January', y: 65 },
+                                        { x: 'February', y: 59 },
+                                        { x: 'March', y: 80 },
+                                        { x: 'April', y: 81 },
+                                        { x: 'May', y: 56 },
+                                    ]}
+                                    style={{ data: { fill: 'tomato' } }}
+                                />
+                                <VictoryBar
+                                    data={[
+                                        { x: 'January', y: 28 },
+                                        { x: 'February', y: 48 },
+                                        { x: 'March', y: 40 },
+                                        { x: 'April', y: 19 },
+                                        { x: 'May', y: 86 },
+                                    ]}
+                                    style={{ data: { fill: 'blue' } }}
+                                />
+                            </VictoryChart>
                             <View style={styles.statsRow}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 

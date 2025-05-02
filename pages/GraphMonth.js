@@ -9,16 +9,16 @@ import { useColor } from '../ColorContext'
 import { theme } from '../color'
 
 
-export default GraphMonth = () => {
+export default GraphWeek = ({ stat }) => {
     const { color, setColor } = useColor();
-    const [stat, setStat] = useState()
-    useEffect(() => {
-        getStat().then(() => console.log("stat", stat))
-    }, []);
-    const getStat = async () => (setStat(await JSON.parse(await AsyncStorage.getItem("@stat"))));
+    const [showEx1, setShowEx1] = useState(false);
+    const [showEx2, setShowEx2] = useState(false);
+    const [showEx3, setShowEx3] = useState(false);
+    const sortedKeys = Object.keys(stat).sort().reverse();
+    const usage = (n) => { if (stat[sortedKeys[n]] === undefined) { return 0 } else return stat[sortedKeys[n]].usage };
+    const focus = (n) => { if (stat[sortedKeys[n]] === undefined) { return 0 } else return stat[sortedKeys[n]].focus };
+    const completed = (n) => { if (stat[sortedKeys[n]] === undefined) { return 0 } else return stat[sortedKeys[n]].completed };
 
-    console.log("stat", stat)
-    console.log("stat usage", Object.keys(stat))
     const hexToRgba = (hex, opacity) => {
         // 헥스 코드에서 RGB 값 추출
         const r = parseInt(hex.slice(1, 3), 16);
@@ -28,26 +28,100 @@ export default GraphMonth = () => {
         // RGBA 형식으로 변환
         return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     };
+
+    const hexToRgbaR = (hex, opacity) => {
+        // 헥스 코드에서 RGB 값 추출
+        const r = parseInt(hex.slice(1, 3), 16) - 100;
+        const g = parseInt(hex.slice(3, 5), 16) - 100;
+        const b = parseInt(hex.slice(5, 7), 16) - 100;
+
+        // RGBA 형식으로 변환
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    };
+    const hexToRgbaG = (hex, opacity) => {
+        // 헥스 코드에서 RGB 값 추출
+        const r = parseInt(hex.slice(1, 3), 16) - 20;
+        const g = parseInt(hex.slice(3, 5), 16) - 20;
+        const b = parseInt(hex.slice(5, 7), 16) - 20;
+
+        // RGBA 형식으로 변환
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    };
+
+    const hexToRgbaB = (hex, opacity) => {
+        // 헥스 코드에서 RGB 값 추출
+        const r = parseInt(hex.slice(1, 3), 16) + 40;
+        const g = parseInt(hex.slice(3, 5), 16) + 40;
+        const b = parseInt(hex.slice(5, 7), 16) + 40;
+
+        // RGBA 형식으로 변환
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    };
+
+    const styles = StyleSheet.create({
+        legendItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginHorizontal: 8,
+        },
+        legendColor: {
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            marginRight: 6,
+        },
+        legendText: {
+            fontSize: 14,
+            color: 'black', // 또는 theme[color].text 이런 걸로 바꿔도 돼
+        },
+    });
     return (
 
         <View>
 
             <LineChart
                 data={{
-                    labels: [".", ".", ".", ".", ".", ".", ".", "today"],
                     datasets: [
                         {
                             data: [
-                                1, 2, 3, 4, 5, 6, 7, 8
-                            ]
+                                (usage(36) + usage(37) + usage(38) + usage(39)) / 28 * 100,
+                                (usage(32) + usage(33) + usage(34) + usage(35)) / 28 * 100,
+                                (usage(28) + usage(29) + usage(30) + usage(31)) / 28 * 100,
+                                (usage(24) + usage(25) + usage(26) + usage(27)) / 28 * 100,
+                                (usage(20) + usage(21) + usage(22) + usage(23)) / 28 * 100,
+                                (usage(16) + usage(17) + usage(18) + usage(19)) / 28 * 100,
+                                (usage(12) + usage(13) + usage(14) + usage(15)) / 28 * 100,
+                                (usage(8) + usage(9) + usage(10) + usage(11)) / 28 * 100,
+                                (usage(4) + usage(5) + usage(6) + usage(7)) / 28 * 100,
+                                (usage(0) + usage(1) + usage(2) + usage(3)) / 28 * 100,
+
+                            ], color: () => hexToRgbaR(theme[color].dddgrey, 0.8), label: "Usage",
                         }, {
                             data: [
-                                3, 4, 5, 6, 7, 8, 9, 10
-                            ]
+                                (focus(36) + focus(37) + focus(38) + focus(39)) / 80 * 100,
+                                (focus(32) + focus(33) + focus(34) + focus(35)) / 80 * 100,
+                                (focus(28) + focus(29) + focus(30) + focus(31)) / 80 * 100,
+                                (focus(24) + focus(25) + focus(26) + focus(27)) / 80 * 100,
+                                (focus(20) + focus(21) + focus(22) + focus(23)) / 80 * 100,
+                                (focus(16) + focus(17) + focus(18) + focus(19)) / 80 * 100,
+                                (focus(12) + focus(13) + focus(14) + focus(15)) / 80 * 100,
+                                (focus(8) + focus(9) + focus(10) + focus(11)) / 80 * 100,
+                                (focus(4) + focus(5) + focus(6) + focus(7)) / 80 * 100,
+                                (focus(0) + focus(1) + focus(2) + focus(3)) / 80 * 100,
+                            ], color: () => hexToRgbaG(theme[color].dddgrey, 0.8), label: "focus"
                         }, {
                             data: [
-                                1, 2, 3, 4, 5, 6, 7, 8
-                            ]
+                                (completed(36) + completed(37) + completed(38) + completed(39)) / 4 * 100,
+                                (completed(32) + completed(33) + completed(34) + completed(35)) / 4 * 100,
+                                (completed(28) + completed(29) + completed(30) + completed(31)) / 4 * 100,
+                                (completed(24) + completed(25) + completed(26) + completed(27)) / 4 * 100,
+                                (completed(20) + completed(21) + completed(22) + completed(23)) / 4 * 100,
+                                (completed(16) + completed(17) + completed(18) + completed(19)) / 4 * 100,
+                                (completed(12) + completed(13) + completed(14) + completed(15)) / 4 * 100,
+                                (completed(8) + completed(9) + completed(10) + completed(11)) / 4 * 100,
+                                (completed(4) + completed(5) + completed(6) + completed(7)) / 4 * 100,
+                                (completed(0) + completed(1) + completed(2) + completed(3)) / 4 * 100,
+                            ], color: () => hexToRgbaB(theme[color].dddgrey, 0.8), label: "completed"
                         },]
                 }}
                 width={Dimensions.get("window").width} // from react-native
@@ -56,15 +130,15 @@ export default GraphMonth = () => {
                 withHorizontalLines={true}
                 fromZero
                 withHorizontalLabels={false}
-                fromNumber={100}
+                fromNumber={10}
                 yAxisInterval={1} // optional, defaults to 1
                 chartConfig={{
                     backgroundGradientFromOpacity: 0,
                     backgroundGradientToOpacity: 0,
                     fillShadowGradientFrom: theme[color].dddgrey,
-                    fillShadowGradientFromOpacity: 1,
+                    fillShadowGradientFromOpacity: 0.2,
                     fillShadowGradientTo: theme[color].dddgrey,
-                    fillShadowGradientToOpacity: 0.0,
+                    fillShadowGradientToOpacity: 0,
                     decimalPlaces: 0, // optional, defaults to 2dp
                     color: (opacity = 1) => hexToRgba(theme[color].dddgrey, opacity),
                     labelColor: (opacity = 1) => hexToRgba(theme[color].dddgrey, opacity),
@@ -73,7 +147,7 @@ export default GraphMonth = () => {
                         borderRadius: 16
                     },
                     propsForDots: {
-                        strokeOpacity: 0.5,
+                        strokeOpacity: 0.3,
                         stroke: "white",
                         r: "4",
                         strokeWidth: "1",
@@ -86,7 +160,30 @@ export default GraphMonth = () => {
                     marginTop: 10
                 }}
             />
-        </View>
+            <View style={{ margin: -8, flexDirection: 'row', justifyContent: 'center' }}>
+                <View style={styles.legendItem}>
+                    <View style={[styles.legendColor, { backgroundColor: hexToRgbaR(theme[color].dddgrey, 1) }]} />
+                    <TouchableOpacity hitSlop={{ top: 20, bottom: 20 }} onPressIn={() => setShowEx1(true)} onPressOut={() => setShowEx1(false)}>
+                        <Text style={styles.legendText}>Usage</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.legendItem}>
+                    <View style={[styles.legendColor, { backgroundColor: hexToRgbaG(theme[color].dddgrey, 1) }]} />
+                    <TouchableOpacity hitSlop={{ top: 20, bottom: 20 }} onPressIn={() => setShowEx2(true)} onPressOut={() => setShowEx2(false)}>
+                        <Text style={styles.legendText}>Focus</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.legendItem}>
+                    <View style={[styles.legendColor, { backgroundColor: hexToRgbaB(theme[color].dddgrey, 1) }]} />
+                    <TouchableOpacity hitSlop={{ top: 20, bottom: 20 }} onPressIn={() => setShowEx3(true)} onPressOut={() => setShowEx3(false)}>
+                        <Text style={styles.legendText}>Completed</Text>
+                    </TouchableOpacity>
+                </View>
+            </View >
+            {showEx1 ? <View style={{ paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10, position: 'absolute', bottom: '20%', left: '5%', right: '5%', backgroundColor: theme[color].bg }}><Text style={{ textAlign: 'center' }}>Usage: focusToDo 앱에 출석한 누적 일수입니다.</Text></View> : null}
+            {showEx2 ? <View style={{ paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10, position: 'absolute', bottom: '20%', left: '5%', right: '5%', backgroundColor: theme[color].bg }}><Text style={{ textAlign: 'center' }}>Focus: 집중을 통해 달성한 To-Do 항목의 수입니다.</Text></View> : null}
+            {showEx3 ? <View style={{ paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10, position: 'absolute', bottom: '20%', left: '5%', right: '5%', backgroundColor: theme[color].bg }}><Text style={{ textAlign: 'center' }}>Completed: 완료한 To-Do의 비율 통계입니다.</Text></View> : null}
+        </View >
     )
 };
 

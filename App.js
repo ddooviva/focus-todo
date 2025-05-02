@@ -234,7 +234,6 @@ export function HomeScreen({ navigation }) {
       setToDos({});
     }
   }
-
   const dateHeader = () => {
     const n = String(RealDate(Date.now() + 86400000 * pageLocation));
     const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
@@ -298,9 +297,6 @@ export function HomeScreen({ navigation }) {
       setToDos(sorting(newToDos));
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
       await saveToDos(sorting(newToDos));
-      console.log("방가", JSON.parse(await AsyncStorage.getItem("@stat")))
-
-
     }
 
     const editTextStart = async (key) => {
@@ -308,8 +304,6 @@ export function HomeScreen({ navigation }) {
       newToDos[key].edit = true;
       setToDos(sorting(newToDos));
       await saveToDos(sorting(newToDos));
-      console.log("good")
-      console.log("gooddd", JSON.parse(AsyncStorage.getItem('@lastAppOpenDate')))
     }
 
     const editTextEnd = async (e, key) => {
@@ -369,7 +363,7 @@ export function HomeScreen({ navigation }) {
       peach: require('./assets/wave/peach.json'),
       cherry: require('./assets/wave/cherry.json'),
       pink: require('./assets/wave/pink.json'),
-      beige: require('./assets/wave/beige.json'),
+      brown: require('./assets/wave/brown.json'),
       darkblue: require('./assets/wave/darkblue.json'),
       darkgreen: require('./assets/wave/darkgreen.json'),
       natural: require('./assets/wave/natural.json'),
@@ -455,6 +449,7 @@ export function HomeScreen({ navigation }) {
           visible={showModal}
           onClose={() => { setShowModal(false) }}
           stats={weekStats}
+          color={color}
           previousStats={previousWeekStats}  // ⭐ 이 prop을 추가!
         />
         {isPlaying ? <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
@@ -538,7 +533,7 @@ export function HomeScreen({ navigation }) {
             )}
           </ScrollView>
         </View >
-        <Text onPress={() => resetLastOpenDate()}>MOdal show!</Text>
+        <Text onPress={() => resetLastOpenDate()} style={{ fontSize: 50 }}>MOdal show!</Text>
         <StatusBar style="dark" />
       </View >
     </PanGestureHandler>

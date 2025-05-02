@@ -134,7 +134,7 @@ export default function PagePrevious({ }) {
         peach: require('../assets/nofound/peach.json'),
         cherry: require('../assets/nofound/cherry.json'),
         pink: require('../assets/nofound/pink.json'),
-        beige: require('../assets/nofound/beige.json'),
+        brown: require('../assets/nofound/brown.json'),
         darkblue: require('../assets/nofound/darkblue.json'),
         darkgreen: require('../assets/nofound/darkgreen.json'),
         natural: require('../assets/nofound/natural.json'),
@@ -153,7 +153,7 @@ export default function PagePrevious({ }) {
         peach: require('../assets/wave/peach.json'),
         cherry: require('../assets/wave/cherry.json'),
         pink: require('../assets/wave/pink.json'),
-        beige: require('../assets/wave/beige.json'),
+        brown: require('../assets/wave/brown.json'),
         darkblue: require('../assets/wave/darkblue.json'),
         darkgreen: require('../assets/wave/darkgreen.json'),
         natural: require('../assets/wave/natural.json'),
@@ -239,41 +239,44 @@ export default function PagePrevious({ }) {
         <GestureHandlerRootView>
             <PanGestureHandler onGestureEvent={onSwipe} >
                 <View style={{ ...styles.container }}>
-                    {isPlaying ? <View style={{
-                        position: 'absolute',
-                        top: 0,
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                    }}>
-                        {Object.keys(previousToDo).length === 0 ?
-                            null :
-                            <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
-                                <LottieView
-                                    key={Date.now()}
-                                    speed={0.2}
-                                    PageLocationProvider
-                                    autoPlay
-                                    source={animationData1}
-                                    style={{
-                                        position: 'absolute',
-                                        top: 270 / 667 * window.height,
-                                        bottom: 0,
-                                        left: 0,
-                                        right: 0,
-                                        zIndex: -5,
-                                        width: '140%',
-                                        height: '98%',
-                                        backgroundColor: theme.bg,
-                                    }}
-                                ></LottieView>
-                            </Animated.View>}
+                    <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: -1, opacity: (color === "black" ? 0.08 : 0), backgroundColor: theme[color].bg }}></View>
+                    {isPlaying ?
+                        <View style={{
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            zIndex: -2,
+                        }}>
+                            {Object.keys(previousToDo).length === 0 ?
+                                null :
+                                <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
+                                    <LottieView
+                                        key={Date.now()}
+                                        speed={0.2}
+                                        PageLocationProvider
+                                        autoPlay
+                                        source={animationData1}
+                                        style={{
+                                            position: 'absolute',
+                                            top: 270 / 667 * window.height,
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            width: '140%',
+                                            height: '98%',
+                                            backgroundColor: theme.bg,
+                                        }}
+                                    ></LottieView>
+                                </Animated.View>}
 
-                        {Object.keys(previousToDo).length === 0 ?
-                            null :
-                            <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
-                                <View style={{ flexDirection: "column", opacity: 1, backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -6 }} />
-                            </Animated.View>}</View>
+                            {Object.keys(previousToDo).length === 0 ?
+                                null :
+                                <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
+                                    <View style={{ flexDirection: "column", opacity: 1, backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -6 }} />
+                                </Animated.View>}
+                        </View>
                         : null}
 
                     <View style={{ ...styles.header, backgroundColor: theme[color].bg }}>

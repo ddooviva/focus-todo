@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, Modal, Button, TextInput, TouchableOpacity, View, Dimensions, TouchableNativeFeedback } from 'react-native';
+import { ScrollView, StyleSheet, Text, Modal, Button, TextInput, TouchableOpacity, View, Dimensions, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
 import { useRef, useEffect, useState } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -9,7 +9,7 @@ import * as Haptics from 'expo-haptics';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { usePageLocation } from '../PageLocationContext'; // Context 훅 임포트
-import GraphWeek from './GraphWeek'
+import GraphDay from './GraphDay'
 import { useToDos } from '../ToDos';
 import { RealDate, HeaderDate } from '../dateTranslator';
 import { theme } from '../color';
@@ -19,17 +19,37 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import WeekGreeting from './WeekGreeting'
 import { calculateAndSaveWeeklyStats, getWeekStats, getLatestStats, autoGenerateStats } from '../stat';
 import GraphMonth from './GraphMonth';
+import GraphWeek from './GraphWeek';
 
 export default function PageGraph({ navigation }) {
     const { color, setColor } = useColor();
 
     const [modal1Visible, setModal1Visible] = useState(false);
     const [modal2Visible, setModal2Visible] = useState(false);
-    const [showGraphWeek, setShowGraphWeek] = useState(true);
-    const [showGraphMonth, setShowGraphMonth] = useState(true);
+    const [showGraphWeek, setShowGraphWeek] = useState(false);
+    const [showGraphMonth, setShowGraphMonth] = useState(false);
+    const [showGraphDay, setShowGraphDay] = useState(true);
+    const [stat, setStat] = useState({});
 
     const { toDos, setToDos } = useToDos();
     const { isPlaying, setIsPlaying } = usePlay();
+
+    useEffect(() => {
+        loadState();
+    }, [])
+    useEffect(() => {
+        const loadStats = async () => {
+            try {
+                const statData = await AsyncStorage.getItem("@stat");
+                const parsedStat = JSON.parse(statData);
+                setStat(parsedStat);
+                console.log('loadstat')
+            } catch (error) {
+                console.error("통계 로딩 에러:", error);
+            }
+        };
+        loadStats();
+    }, []);
 
     const achiveNumD = (dateMinusNum) => {
         const a = (Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length === 0) ? 0 :
@@ -48,14 +68,12 @@ export default function PageGraph({ navigation }) {
         await AsyncStorage.setItem("@color", Object.keys(theme)[a])
         return null;
     }
-    const randomNum = () => Math.floor(Math.random() * 12) + 1;
+    const randomNum = () => Math.floor(Math.random() * 13);
     const loadState = async () => {
         const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
         setIsPlaying(b !== undefined ? b : true)
     }
-    useEffect(() => {
-        loadState();
-    }, [])
+
 
 
     const changeGoal = () => { };
@@ -230,8 +248,11 @@ export default function PageGraph({ navigation }) {
                                 <Text style={styles.modal3Text}></Text>
 
                                 <Text style={styles.modal3Text}></Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.modal2Text}>Theme Color :</Text>
-                                    <Text style={{ ...styles.modal1Text }} onPress={() => changeColor(randomNum())}>{color.toUpperCase()}</Text></View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text style={styles.modal2Text}>Theme Color :</Text>
+                                    <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => changeColor(randomNum())}>
+                                        <Text style={{ ...styles.modal1Text }} >{color.toUpperCase()}</Text>
+                                    </TouchableOpacity></View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Text style={styles.modal2Text}>Animation Toggle :</Text>
                                     <Text style={styles.modal1Text} onPress={async () => {
@@ -254,21 +275,26 @@ export default function PageGraph({ navigation }) {
                         {(averageAchiveNumD > 0.8) ? <Text style={styles.contentText1}> 대단해요 !</Text> : null}
                     </BlurView>
                     <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
-                        <View style={{
-                            flex: 1, flexDirection: 'row', justifyContent: 'flex-start', width: '100 %', padding: 20, paddingVertical: -10
-
-                        }}>
-                            <TouchableOpacity onPress={() => { setShowGraphWeek(true); setShowGraphMonth(false) }}>
+                        <View style={{ marginRight: 100 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                <View style={{ backgroundColor: theme[color].dddgrey, opacity: (showGraphDay ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, marginRight: 6 }}>
+                                    <TouchableOpacity hitSlop={{ top: 10, bottom: 10, right: 5, left: 5 }} onPress={() => { setShowGraphDay(true); setShowGraphWeek(false); setShowGraphMonth(false) }}>
+                                        <Text style={{ fontSize: 16, color: theme[color].bg, fontWeight: "bold" }}>Day</Text>
+                                    </TouchableOpacity>
+                                </View>
                                 <View style={{ backgroundColor: theme[color].dddgrey, opacity: (showGraphWeek ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, marginRight: 6 }}>
-                                    <Text style={{ fontSize: 16, color: theme[color].bg, fontWeight: "bold" }}>Week</Text>
+                                    <TouchableOpacity hitSlop={{ top: 10, bottom: 10, right: 5, left: 5 }} onPress={() => { setShowGraphDay(false); setShowGraphWeek(true); setShowGraphMonth(false) }}>
+                                        <Text style={{ fontSize: 16, color: theme[color].bg, fontWeight: "bold" }}>Week</Text>
+                                    </TouchableOpacity>
                                 </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { setShowGraphWeek(false); setShowGraphMonth(true) }}>
-                                <View style={{ backgroundColor: theme[color].dddgrey, opacity: (!showGraphWeek ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
-                                    <Text style={{ fontSize: 16, color: theme[color].bg, fontWeight: "bold" }}>Month</Text>
+                                <View style={{ backgroundColor: theme[color].dddgrey, opacity: (showGraphMonth ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
+                                    <TouchableOpacity hitSlop={{ top: 10, bottom: 10, right: 5, left: 5 }} onPress={() => { setShowGraphDay(false); setShowGraphWeek(false); setShowGraphMonth(true) }}>
+                                        <Text style={{ fontSize: 16, color: theme[color].bg, fontWeight: "bold" }}>Month</Text>
+                                    </TouchableOpacity>
                                 </View>
-                            </TouchableOpacity></View>
-                        {showGraphWeek ? <GraphWeek /> : <View style={{ height: 190, justifyContent: 'center', flex: 1 }}><GraphMonth /><Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text></View>}
+                            </View>
+                        </View>
+                        {showGraphDay ? <GraphDay /> : showGraphWeek ? <View style={{ height: 190, justifyContent: 'center' }}><GraphWeek stat={stat} /></View> : <View style={{ height: 190, justifyContent: 'center' }}><GraphMonth stat={stat} /></View>}
                     </BlurView>
 
                     <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>

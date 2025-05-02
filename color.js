@@ -44,10 +44,10 @@ export const theme = {
         ddgrey: "#d8527f",
         dddgrey: "#cd2456",
     },
-    beige: {
-        bg: "#fffaf3",
-        llgrey: "#d2b58b",
-        dgrey: '#b68a5e',
+    brown: {
+        bg: "#fbf1df",
+        llgrey: "#f2e1b9",
+        dgrey: '#d2b58b',
         ddgrey: "#9b6849",
         dddgrey: "#553d2e",
     },
