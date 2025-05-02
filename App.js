@@ -25,6 +25,8 @@ import { PlayProvider, usePlay } from './PlayContext';
 import { calculateAndSaveWeeklyStats, getLatestStats, getLastTwoWeeksStats, testStat } from './stat';
 import { WeekGreeting } from './pages/WeekGreeting'
 import { testToDos } from './ToDos';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 const Stack = createNativeStackNavigator();
 
@@ -64,21 +66,31 @@ export function HomeScreen({ navigation }) {
   const [showLottie, setShowLottie] = useState(false); // 폭죽 표시 상태
   const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 관리
   const [achieveNum, setAchieveNum] = useState(0);
-  const [start, setStart] = useState(false);
   const { isPlaying, setIsPlaying } = usePlay();
   const [showModal, setShowModal] = useState(false);
   const [weekStats, setWeekStats] = useState(null);
   const [previousWeekStats, setPreviousWeekStats] = useState(null);  // ⭐ 추가
 
+
   useEffect(() => {
     loadToDos();
-    setStart(!start)
   }, [])
 
+  useFocusEffect(
+    useCallback(() => {
+      console.log('이 화면이 지금 포커스됨!');
+      console.log(achieveNum)
+      animatedWaveValue.value = withTiming(
+        ((-950 * achieveNum) / 667 * window.height),
+        { duration: 10, easing: Easing.out(Easing.back(1)) }
+      );
+      animatedBoxValue.value = withTiming(
+        ((-470 * achieveNum) / 667 * window.height),
+        { duration: 10, easing: Easing.out(Easing.back(1)) }
+      );
+    }
+    ));
 
-
-  useEffect(() =>
-    setStart(!start), [pageLocation, navigation]);
 
   useEffect(() => {
     const checkFirstLaunch = async () => {
@@ -96,21 +108,15 @@ export function HomeScreen({ navigation }) {
     checkFirstLaunch(); // 비동기 함수 호출
   }, []);
 
-  useEffect(
-    () => {
-      animatedWaveValue.value = withTiming(((-950 * achieveNum) / 667 * window.height), { duration: 0, easing: Easing.out(Easing.back(1)) });
-      animatedBoxValue.value = withTiming(((-470 * achieveNum) / 667 * window.height), { duration: 0, easing: Easing.out(Easing.back(1)) });
-    }, [start])
 
   useEffect(() => {
     animatedWaveValue.value = withTiming(((-950 * achieveNum) / 667 * window.height), { duration: 4444, easing: Easing.out(Easing.back(1)) });
     animatedBoxValue.value = withTiming(((-470 * achieveNum) / 667 * window.height), { duration: 4444, easing: Easing.out(Easing.back(1)) });
-
   }, [achieveNum]);
   useEffect(() => setAchieveNum(() => {
     const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
     return num;
-  }), [toDos, pageLocation]);
+  }), [toDos]);
 
 
   useEffect(() => {
@@ -161,8 +167,8 @@ export function HomeScreen({ navigation }) {
     }
   };
 
-  const animatedWaveValue = useSharedValue((-950 * achieveNum) / 667 * window.height);
-  const animatedBoxValue = useSharedValue(((-470 * achieveNum) / 667 * window.height));
+  const animatedWaveValue = useSharedValue((-950 * 0.1) / 667 * window.height);
+  const animatedBoxValue = useSharedValue(((-470 * 0.1) / 667 * window.height));
 
 
   // 애니메이션 스타일 정의
@@ -222,7 +228,6 @@ export function HomeScreen({ navigation }) {
         .filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length /
         Object.entries(filteredToDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length;
       setAchieveNum(num);
-      setStart(!start);
 
       const a = await AsyncStorage.getItem("@color")
       setColor(a ? a : "black");

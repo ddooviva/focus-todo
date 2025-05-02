@@ -6,8 +6,6 @@ import { useColor } from '../ColorContext';
 import * as Haptics from 'expo-haptics';
 import LottieView from 'lottie-react-native';
 import { BlurView } from 'expo-blur';
-import { BarChart } from 'react-native-chart-kit';
-import { VictoryChart, VictoryBar, VictoryAxis, VictoryTheme } from 'victory-native';
 // TrendArrow 컴포넌트 수정
 const TrendArrow = ({ current, previous }) => {
     if (!previous || previous === 0) return null;  // ⭐ previous가 없으면 아무것도 표시하지 않음
@@ -197,30 +195,7 @@ function WeekGreeting({ visible, color, onClose, stats, previousStats }) {
                             <Text style={styles.dateText}>
                                 {formatDate(stats.weekStart)} ~ {formatDate(new Date(stats.weekStart).setDate(new Date(stats.weekStart).getDate() + 6))}
                             </Text>
-                            <VictoryChart theme={VictoryTheme.material}>
-                                <VictoryAxis />
-                                <VictoryAxis dependentAxis />
-                                <VictoryBar
-                                    data={[
-                                        { x: 'January', y: 65 },
-                                        { x: 'February', y: 59 },
-                                        { x: 'March', y: 80 },
-                                        { x: 'April', y: 81 },
-                                        { x: 'May', y: 56 },
-                                    ]}
-                                    style={{ data: { fill: 'tomato' } }}
-                                />
-                                <VictoryBar
-                                    data={[
-                                        { x: 'January', y: 28 },
-                                        { x: 'February', y: 48 },
-                                        { x: 'March', y: 40 },
-                                        { x: 'April', y: 19 },
-                                        { x: 'May', y: 86 },
-                                    ]}
-                                    style={{ data: { fill: 'blue' } }}
-                                />
-                            </VictoryChart>
+
                             <View style={styles.statsRow}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 
