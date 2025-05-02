@@ -78,8 +78,6 @@ export function HomeScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('이 화면이 지금 포커스됨!');
-      console.log(achieveNum)
       animatedWaveValue.value = withTiming(
         ((-950 * achieveNum) / 667 * window.height),
         { duration: 10, easing: Easing.out(Easing.back(1)) }
@@ -418,7 +416,7 @@ export function HomeScreen({ navigation }) {
         fontSize: 16,
         color: theme[color].dddgrey,
         borderRadius: 20,
-        borderWidth: 2,
+        borderWidth: 1,
         borderStyle: "dotted",
         borderColor: theme[color].dgrey,
         marginHorizontal: 30
@@ -550,7 +548,6 @@ export function HomeScreen({ navigation }) {
             )}
           </ScrollView>
         </View >
-        <Text onPress={() => resetLastOpenDate()} style={{ fontSize: 50 }}>MOdal show!</Text>
 
         <StatusBar style="dark" />
       </View >

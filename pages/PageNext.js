@@ -156,7 +156,7 @@ export default function PageNext({ }) {
             fontSize: 16,
             color: theme[color].dddgrey,
             borderRadius: 20,
-            borderWidth: 2,
+            borderWidth: 1,
             borderStyle: "dotted",
             borderColor: theme[color].dgrey,
             marginHorizontal: 30

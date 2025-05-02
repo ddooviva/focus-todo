@@ -44,7 +44,6 @@ export default function PageGraph({ navigation }) {
                 const statData = await AsyncStorage.getItem("@stat");
                 const parsedStat = JSON.parse(statData);
                 setStat(parsedStat);
-                console.log('loadstat')
             } catch (error) {
                 console.error("통계 로딩 에러:", error);
             }
@@ -209,7 +208,6 @@ export default function PageGraph({ navigation }) {
         }
     })
     const totalFocus = Object.values(stat).reduce((sum, item) => sum + (item.focus || 0), 0);
-    console.log(totalFocus)
     const a = "dd"
 
     return (
