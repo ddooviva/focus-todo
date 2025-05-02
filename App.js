@@ -460,13 +460,13 @@ export function HomeScreen({ navigation }) {
     });
     return <GestureHandlerRootView><PanGestureHandler onGestureEvent={onSwipe}>
       <View style={{ ...styles.container }}>
-        <WeekGreeting
+        {toDos ? <WeekGreeting
           visible={showModal}
           onClose={() => { setShowModal(false) }}
           stats={weekStats}
           color={color}
           previousStats={previousWeekStats}  // ⭐ 이 prop을 추가!
-        />
+        /> : null}
         {isPlaying ? <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
           <LottieView
             key={Date.now()}
