@@ -30,6 +30,7 @@ export default function PageGraph({ navigation }) {
     const [showGraphMonth, setShowGraphMonth] = useState(false);
     const [showGraphDay, setShowGraphDay] = useState(true);
     const [stat, setStat] = useState({});
+    const [streak, setStreak] = useState(null);
 
     const { toDos, setToDos } = useToDos();
     const { isPlaying, setIsPlaying } = usePlay();
@@ -50,7 +51,13 @@ export default function PageGraph({ navigation }) {
         };
         loadStats();
     }, []);
-
+    useEffect(() => {
+        const fetchStreak = async () => {
+            const result = await getStreakFromStorage();
+            setStreak(result);
+        };
+        fetchStreak();
+    }, []);
     const achiveNumD = (dateMinusNum) => {
         const a = (Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length === 0) ? 0 :
             Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(-dateMinusNum, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length
@@ -74,6 +81,29 @@ export default function PageGraph({ navigation }) {
         setIsPlaying(b !== undefined ? b : true)
     }
 
+    const getStreakFromStorage = async () => {
+        const json = await AsyncStorage.getItem('workedDates');
+        const workedDates = json ? JSON.parse(json) : [];
+
+        const dateSet = new Set(workedDates); // 빠른 검색을 위해 Set 사용
+        let streak = 0;
+
+        let current = new Date();
+        current.setHours(0, 0, 0, 0); // 시간 제거 (날짜만 비교)
+
+        while (true) {
+            const dateStr = current.toISOString().split('T')[0];
+
+            if (dateSet.has(dateStr)) {
+                streak++;
+                current.setDate(current.getDate() - 1); // 하루 전으로
+            } else {
+                break; // 연속이 끊기면 종료
+            }
+        }
+
+        return streak;
+    };
 
 
     const changeGoal = () => { };
@@ -117,7 +147,7 @@ export default function PageGraph({ navigation }) {
             textAlign: 'center',
             color: theme[color].bg,
             fontWeight: 600,
-            fontSize: 16,
+            fontSize: 18,
             margin: 3,
         },
         contentText2: {
@@ -178,6 +208,9 @@ export default function PageGraph({ navigation }) {
             alignContent: 'center',
         }
     })
+    const totalFocus = Object.values(stat).reduce((sum, item) => sum + (item.focus || 0), 0);
+    console.log(totalFocus)
+    const a = "dd"
 
     return (
         <View style={styles.container}>
@@ -298,14 +331,13 @@ export default function PageGraph({ navigation }) {
                     </BlurView>
 
                     <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
-                        <Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text>
+                        <Text style={styles.contentText1}><Text style={styles.contentText2}> Focus 하여 해낸</Text> ToDo는 </Text>
+                        <Text style={styles.contentText1}>지금까지 총 <Text style={styles.contentText2}>{totalFocus}개</Text>입니다.</Text>
                         {/*  <Text style={styles.contentText1}>연속 작업 일 수는 <Text style={styles.contentText2}>188</Text>일 입니다. </Text> */}
                     </BlurView>
                     <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
-
-                        <Text style={styles.contentText1}></Text>
-                        <Text style={styles.contentText1}>업데이트를 기다려주세요 ...</Text>
-                        <Text style={styles.contentText1}></Text>
+                        <Text style={styles.contentText1}>현재 연속 <Text style={styles.contentText2}>{streak + 1}</Text>일째 작업중입니다.</Text>
+                        {(streak > 29 ? <Text style={styles.contentText1}>잘 하고 있어요!</Text> : null)}
 
                         {/* <Text style={styles.contentText1}>사용 초반에 비해 실행력이 <Text style={styles.contentText2}>40%</Text> 늘어났습니다.</Text>
                         <Text style={styles.contentText1} onPress={() => changeGoal()}>초기 목표에 도달했습니다. 완벽합니다. </Text>

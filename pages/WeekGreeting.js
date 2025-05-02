@@ -195,7 +195,30 @@ function WeekGreeting({ visible, color, onClose, stats, previousStats }) {
                             <Text style={styles.dateText}>
                                 {formatDate(stats.weekStart)} ~ {formatDate(new Date(stats.weekStart).setDate(new Date(stats.weekStart).getDate() + 6))}
                             </Text>
-
+                            <View style={{ height: 200, backgroundColor: theme[color].bg, borderColor: theme[color].llgrey, borderWidth: 2, borderRadius: 10 }}>
+                                <View style={{ flex: 7, flexDirection: 'row', }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end', height: 200, gap: 0, width: '100%' }}>
+                                        {/* 1묶음 */}
+                                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                                            <View style={{ flexDirection: 'column-reverse', bottom: 25 }}><View style={{ width: 20, height: (previousStats.completed * 150), backgroundColor: theme[color].dgrey, opacity: 0.6 }} /></View>
+                                            <View style={{ flexDirection: 'column-reverse', bottom: 25 }}><View style={{ width: 20, height: (stats.completed * 150), backgroundColor: theme[color].ddgrey }} /></View>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                                            <View style={{ flexDirection: 'column-reverse', bottom: 25 }}><View style={{ width: 20, height: (previousStats.usage / 7 * 150), backgroundColor: theme[color].dgrey, opacity: 0.6 }} /></View>
+                                            <View style={{ flexDirection: 'column-reverse', bottom: 25 }}><View style={{ width: 20, height: (stats.usage / 7 * 150), backgroundColor: theme[color].ddgrey }} /></View>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                                            <View style={{ flexDirection: 'column-reverse', bottom: 25 }}><View style={{ width: 20, height: ((previousStats.focus > 20 ? 20 : previousStats.focus) / 20 * 150), backgroundColor: theme[color].dgrey, opacity: 0.6 }} /></View>
+                                            <View style={{ flexDirection: 'column-reverse', bottom: 25 }}><View style={{ width: 20, height: ((stats.focus > 20 ? 20 : stats.focus) / 20 * 150), backgroundColor: theme[color].ddgrey }} /></View>
+                                        </View>
+                                    </View>
+                                </View>
+                                <View style={{ width: '100%', flex: 1, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15, zIndex: 1, backgroundColor: theme[color].bg, borderTopWidth: 1, borderColor: theme[color].llgrey, borderRadius: 10, alignItems: 'center' }}>
+                                    <Text style={{ fontWeight: '500', color: theme[color].dddgrey }}>종합 성취율</Text>
+                                    <Text style={{ fontWeight: '500', color: theme[color].dddgrey }}> 출석 일수 </Text>
+                                    <Text style={{ fontWeight: '500', color: theme[color].dddgrey }}> 집중 성공 </Text>
+                                </View>
+                            </View>
                             <View style={styles.statsRow}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 
@@ -220,7 +243,7 @@ function WeekGreeting({ visible, color, onClose, stats, previousStats }) {
                             <View style={styles.statsRow}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 
-                                    <Text style={styles.label}>출석일수 </Text>
+                                    <Text style={styles.label}>출석 일수 </Text>
                                     {previousStats && (<TrendArrow
                                         current={stats.usage}
                                         previous={previousStats?.usage}

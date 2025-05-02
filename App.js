@@ -71,9 +71,9 @@ export function HomeScreen({ navigation }) {
   const [weekStats, setWeekStats] = useState(null);
   const [previousWeekStats, setPreviousWeekStats] = useState(null);  // ⭐ 추가
 
-
   useEffect(() => {
     loadToDos();
+    saveTodayAsWorked();
   }, [])
 
   useFocusEffect(
@@ -115,7 +115,7 @@ export function HomeScreen({ navigation }) {
   }, [achieveNum]);
   useEffect(() => setAchieveNum(() => {
     const num = Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(pageLocation, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(pageLocation, false)).length
-    return num;
+    return (num ? num : 0);
   }), [toDos]);
 
 
@@ -158,6 +158,18 @@ export function HomeScreen({ navigation }) {
 
     checkAndShowStats();
   }, []);
+
+  const saveTodayAsWorked = async () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const json = await AsyncStorage.getItem('workedDates');
+    let workedDates = json ? JSON.parse(json) : [];
+
+    if (!workedDates.includes(todayStr)) {
+      workedDates.push(todayStr);
+      await AsyncStorage.setItem('workedDates', JSON.stringify(workedDates));
+    }
+  };
   const resetLastOpenDate = async () => {
     try {
       await AsyncStorage.removeItem('@lastAppOpenDate');
@@ -539,6 +551,7 @@ export function HomeScreen({ navigation }) {
           </ScrollView>
         </View >
         <Text onPress={() => resetLastOpenDate()} style={{ fontSize: 50 }}>MOdal show!</Text>
+
         <StatusBar style="dark" />
       </View >
     </PanGestureHandler>
