@@ -31,15 +31,6 @@ export default GraphWeek = ({ stat }) => {
 
     const hexToRgbaR = (hex, opacity) => {
         // 헥스 코드에서 RGB 값 추출
-        const r = parseInt(hex.slice(1, 3), 16) - 100;
-        const g = parseInt(hex.slice(3, 5), 16) - 100;
-        const b = parseInt(hex.slice(5, 7), 16) - 100;
-
-        // RGBA 형식으로 변환
-        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-    };
-    const hexToRgbaG = (hex, opacity) => {
-        // 헥스 코드에서 RGB 값 추출
         const r = parseInt(hex.slice(1, 3), 16) - 20;
         const g = parseInt(hex.slice(3, 5), 16) - 20;
         const b = parseInt(hex.slice(5, 7), 16) - 20;
@@ -47,12 +38,21 @@ export default GraphWeek = ({ stat }) => {
         // RGBA 형식으로 변환
         return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     };
+    const hexToRgbaG = (hex, opacity) => {
+        // 헥스 코드에서 RGB 값 추출
+        const r = parseInt(hex.slice(1, 3), 16) + 30;
+        const g = parseInt(hex.slice(3, 5), 16) + 30;
+        const b = parseInt(hex.slice(5, 7), 16) + 30;
+
+        // RGBA 형식으로 변환
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    };
 
     const hexToRgbaB = (hex, opacity) => {
         // 헥스 코드에서 RGB 값 추출
-        const r = parseInt(hex.slice(1, 3), 16) + 40;
-        const g = parseInt(hex.slice(3, 5), 16) + 40;
-        const b = parseInt(hex.slice(5, 7), 16) + 40;
+        const r = parseInt(hex.slice(1, 3), 16) + 90;
+        const g = parseInt(hex.slice(3, 5), 16) + 90;
+        const b = parseInt(hex.slice(5, 7), 16) + 90;
 
         // RGBA 형식으로 변환
         return `rgba(${r}, ${g}, ${b}, ${opacity})`;

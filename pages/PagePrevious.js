@@ -132,15 +132,17 @@ export default function PagePrevious({ }) {
         blue: require('../assets/nofound/blue.json'),
         green: require('../assets/nofound/green.json'),
         peach: require('../assets/nofound/peach.json'),
-        cherry: require('../assets/nofound/cherry.json'),
+        cherry: require('../assets/nofound/green.json'),
         pink: require('../assets/nofound/pink.json'),
-        brown: require('../assets/nofound/brown.json'),
+        brown: require('../assets/nofound/green.json'),
         darkblue: require('../assets/nofound/darkblue.json'),
         darkgreen: require('../assets/nofound/darkgreen.json'),
         natural: require('../assets/nofound/natural.json'),
         grape: require('../assets/nofound/grape.json'),
         yellow: require('../assets/nofound/yellow.json'),
         default: require('../assets/nofound/blue.json'),
+        aqua: require('../assets/nofound/darkblue.json'),
+        bluelemon: require('../assets/nofound/darkblue.json'),
 
     };
     const animationData = animationPaths[color];
@@ -160,6 +162,8 @@ export default function PagePrevious({ }) {
         grape: require('../assets/wave/grape.json'),
         yellow: require('../assets/wave/yellow.json'),
         default: require('../assets/wave/blue.json'),
+        aqua: require('../assets/wave/aqua.json'),
+        bluelemon: require('../assets/wave/bluelemon.json'),
 
     };
     const animationData1 = animationPaths1[color];
@@ -254,13 +258,13 @@ export default function PagePrevious({ }) {
                                 <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
                                     <LottieView
                                         key={Date.now()}
-                                        speed={0.2}
+                                        speed={1}
                                         PageLocationProvider
                                         autoPlay
                                         source={animationData1}
                                         style={{
                                             position: 'absolute',
-                                            top: 270 / 667 * window.height,
+                                            top: 325 / 667 * window.height,
                                             bottom: 0,
                                             left: 0,
                                             right: 0,
@@ -308,7 +312,7 @@ export default function PagePrevious({ }) {
                                 ></LottieView>
                             </View>
                             : Object.keys(previousToDo).length === 0 && !isPlaying ? <View style={{ ...styles.listContainer }}>
-                                <Text style={styles.nodataText}>no data</Text>
+                                <Text style={{ ...styles.nodataText, textAlign: 'center' }}>no data</Text>
 
                             </View> :
                                 <View style={{ ...styles.listContainer }}>

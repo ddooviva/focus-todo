@@ -56,7 +56,7 @@ function WeekGreeting({ visible, color, onClose, stats, previousStats }) {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: theme[color].llgrey,
+            backgroundColor: [color].llgrey,
         },
         modalView: {
             width: '80%',
@@ -138,7 +138,6 @@ function WeekGreeting({ visible, color, onClose, stats, previousStats }) {
         // RGBA 형식으로 변환
         return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     };
-    if (!stats) return null;
     const animationPaths1 = {
         black: require('../assets/thumbsup/black.json'),
         lavender: require('../assets/thumbsup/lavender.json'),
@@ -154,6 +153,8 @@ function WeekGreeting({ visible, color, onClose, stats, previousStats }) {
         grape: require('../assets/thumbsup/grape.json'),
         yellow: require('../assets/thumbsup/yellow.json'),
         default: require('../assets/thumbsup/black.json'),
+        bluelemon: require('../assets/thumbsup/yellow.json'),
+        aqua: require('../assets/thumbsup/blue.json'),
     };
     const animationData1 = animationPaths1[color];
     return (

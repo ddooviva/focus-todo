@@ -24,7 +24,7 @@ import { ColorProvider, useColor } from './ColorContext';
 import { PlayProvider, usePlay } from './PlayContext';
 import { calculateAndSaveWeeklyStats, getLatestStats, getLastTwoWeeksStats, testStat } from './stat';
 import { WeekGreeting } from './pages/WeekGreeting'
-import { testToDos } from './ToDos';
+import { testToDos, testToDosZero } from './ToDos';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 
@@ -70,6 +70,9 @@ export function HomeScreen({ navigation }) {
   const [showModal, setShowModal] = useState(false);
   const [weekStats, setWeekStats] = useState(null);
   const [previousWeekStats, setPreviousWeekStats] = useState(null);  // ⭐ 추가
+
+  //  setToDos(testToDos);
+  //  setToDos(testToDosZero); 
 
   useEffect(() => {
     loadToDos();
@@ -130,21 +133,21 @@ export function HomeScreen({ navigation }) {
         const today = new Date();
         const thisWeekMonday = new Date(today);
         thisWeekMonday.setDate(today.getDate() - today.getDay() + 1);  // 이번주 월요일
-        thisWeekMonday.setHours(0, 0, 0, 0);
-
+        thisWeekMonday.setHours(4, 0, 0, 0);
+        const thisWeekMondayISO = thisWeekMonday.toISOString();
         // 마지막으로 앱을 열었던 날짜 확인
         const lastAppOpenDate = await AsyncStorage.getItem('@lastAppOpenDate');
-
-        // 이번주 처음 앱을 여는 경우
-        if (!lastAppOpenDate || new Date(lastAppOpenDate) < thisWeekMonday) {
+        if (!lastAppOpenDate) {
+          setShowModal(false); // 열람 날짜가 없으면 모달 숨기기
+        } else if (lastAppOpenDate < thisWeekMondayISO) {
           const twoWeeksStats = await getLastTwoWeeksStats();
-          console.log("가져온 통계:", twoWeeksStats); // 데이터 확인용
-
+          console.log("가져온 통계:", twoWeeksStats);
           if (twoWeeksStats && twoWeeksStats.stats) {
             setWeekStats(twoWeeksStats.stats);
             setPreviousWeekStats(twoWeeksStats.previousStats);
             setShowModal(true);
           }
+
 
           // 현재 날짜를 마지막 열람 날짜로 저장
           await AsyncStorage.setItem('@lastAppOpenDate', today.toISOString());
@@ -153,10 +156,8 @@ export function HomeScreen({ navigation }) {
         console.error('Error checking stats:', error);
       }
     };
-
     checkAndShowStats();
   }, []);
-
   const saveTodayAsWorked = async () => {
     const todayStr = new Date().toISOString().split('T')[0];
 
@@ -170,13 +171,14 @@ export function HomeScreen({ navigation }) {
   };
   const resetLastOpenDate = async () => {
     try {
-      await AsyncStorage.removeItem('@lastAppOpenDate');
+      await AsyncStorage.setItem('@lastAppOpenDate', "2025-05-04T11:00:00.000Z");
       console.log("마지막 열람 날짜 초기화 완료!");
     } catch (error) {
       console.error("초기화 실패:", error);
     }
   };
-
+  /*   resetLastOpenDate();
+   */
   const animatedWaveValue = useSharedValue((-950 * 0.1) / 667 * window.height);
   const animatedBoxValue = useSharedValue(((-470 * 0.1) / 667 * window.height));
 
@@ -249,13 +251,7 @@ export function HomeScreen({ navigation }) {
       setToDos({});
     }
   }
-  const dateHeader = () => {
-    const n = String(RealDate(Date.now() + 86400000 * pageLocation));
-    const date = new Date(parseInt(n.slice(0, 4), 10), parseInt(n.slice(4, 6), 10) - 1, parseInt(n.slice(6, 8), 10))
-    const dayOfWeek = date.getDay();
-    const days = ["일", "월", "화", "수", "목", "금", "토"];
-    return n.slice(0, 4) + "." + n.slice(4, 6) + "." + n.slice(6, 8) + " (" + days[dayOfWeek] + ")"
-  };
+
   if (pageLocation === 0) {
     const onSwipe = (event) => {
       if (event.nativeEvent.translationX > 50) {
@@ -385,6 +381,8 @@ export function HomeScreen({ navigation }) {
       grape: require('./assets/wave/grape.json'),
       yellow: require('./assets/wave/yellow.json'),
       default: require('./assets/wave/black.json'),
+      aqua: require('./assets/wave/aqua.json'),
+      bluelemon: require('./assets/wave/bluelemon.json'),
     };
     const animationData1 = animationPaths1[color];
 
@@ -405,7 +403,9 @@ export function HomeScreen({ navigation }) {
       date: {
         fontSize: 20,
         fontWeight: 600,
-        color: theme[color].dddgrey
+        color: theme[color].dddgrey,
+        textAlign: 'center',
+        textAlignVertical: 'center'
       },
       inputContainer: {
         flex: 2
@@ -434,7 +434,9 @@ export function HomeScreen({ navigation }) {
         margin: 5,
         borderRadius: 20,
         alignItems: "center",
-        opacity: 0.93
+        opacity: 0.93,
+        borderWidth: 1,
+        borderColor: theme[color].bg,
 
       },
       listText: {
@@ -470,25 +472,27 @@ export function HomeScreen({ navigation }) {
         {isPlaying ? <Animated.View style={{ ...animatedStyleWave, flex: 1 }} >
           <LottieView
             key={Date.now()}
-            speed={0.2}
+            speed={0.5}
             PageLocationProvider
             autoPlay
             loop
             source={animationData1}
             style={{
               position: 'absolute',
-              top: 270 / 667 * window.height,
+              top: 325 / 667 * window.height,
               bottom: 0,
               left: 0,
               right: 0,
               zIndex: -5,
               width: '140%',
               height: '98%',
+              opacity: 1,
+              backgroundColor: theme[color].bg
             }}
           ></LottieView>
         </Animated.View> : null}
         {isPlaying ? <Animated.View style={{ ...animatedStyleBox, flex: 1 }}>
-          <View style={{ flexDirection: "column", opacity: 1, backgroundColor: (color === "black" ? "black" : theme[color].ddgrey), position: 'absolute', bottom: 0, top: 650 / 667 * window.height, width: '100%', height: '100%', zIndex: -6 }} />
+          <View style={{ flexDirection: "column", opacity: 1, backgroundColor: (color === "black" ? "black" : theme[color].wave), position: 'absolute', bottom: 0, top: 680 / 667 * window.height, width: '100%', height: '100%', zIndex: -6 }} />
         </Animated.View> : null}
         {showLottie && (<BlurView intensity={5} style={{ ...styles.blurContainer, zIndex: 2 }}>
           <LottieView
@@ -516,7 +520,7 @@ export function HomeScreen({ navigation }) {
           <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation - 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretleft" size={24} color={theme[color].ddgrey} /></TouchableOpacity>
           <TouchableOpacity onLongPress={() => navigation.navigate('PageGraph')}>
             <View style={{ backgroundColor: theme[color].dddgrey, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10 }}>
-              <Text style={{ ...styles.date, color: theme[color].bg }} >{dateHeader()}</Text>
+              <Text style={{ ...styles.date, color: theme[color].bg }} >{HeaderDate(pageLocation, true)}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => { setPageLocation(pageLocation + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) }} ><AntDesign name="caretright" size={24} color={theme[color].ddgrey} /></TouchableOpacity>

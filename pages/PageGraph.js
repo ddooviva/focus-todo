@@ -36,7 +36,37 @@ export default function PageGraph({ navigation }) {
     const { isPlaying, setIsPlaying } = usePlay();
 
     useEffect(() => {
+
         loadState();
+        /*    const a = {
+               '2025-04-14': {
+                   focus: 3,
+                   completed: 7,
+                   usage: 10
+               },
+               '2025-04-21': {
+                   focus: 2,
+                   completed: 5,
+                   usage: 8
+               },
+               '2025-04-28': {
+                   focus: 4,
+                   completed: 9,
+                   usage: 10
+               },
+               '2025-05-05': {
+                   focus: 3,
+                   completed: 6,
+                   usage: 9
+               },
+               '2025-05-12': {
+                   focus: 1,
+                   completed: 2,
+                   usage: 4
+               }
+           };
+           setStat(a);
+           await AsyncStorage.setItem("@stat", JSON.stringify(a)) */
     }, [])
     useEffect(() => {
         const loadStats = async () => {
@@ -44,6 +74,7 @@ export default function PageGraph({ navigation }) {
                 const statData = await AsyncStorage.getItem("@stat");
                 const parsedStat = JSON.parse(statData);
                 setStat(parsedStat);
+                console.log(parsedStat)
             } catch (error) {
                 console.error("통계 로딩 에러:", error);
             }
@@ -57,6 +88,8 @@ export default function PageGraph({ navigation }) {
         };
         fetchStreak();
     }, []);
+    console.log(stat)
+
     const achiveNumD = (dateMinusNum) => {
         const a = (Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length === 0) ? 0 :
             Object.entries(toDos).filter(([key, value]) => value.progress === 2 && value.date === HeaderDate(-dateMinusNum, false)).length / Object.entries(toDos).filter(([key, value]) => value.date === HeaderDate(-dateMinusNum, false)).length
@@ -74,7 +107,7 @@ export default function PageGraph({ navigation }) {
         await AsyncStorage.setItem("@color", Object.keys(theme)[a])
         return null;
     }
-    const randomNum = () => Math.floor(Math.random() * 13);
+    const randomNum = () => Math.floor(Math.random() * 15);
     const loadState = async () => {
         const b = JSON.parse(await AsyncStorage.getItem("@isPlaying"))
         setIsPlaying(b !== undefined ? b : true)
@@ -130,6 +163,8 @@ export default function PageGraph({ navigation }) {
             fontSize: 20,
             fontWeight: 600,
             color: theme[color].dddgrey,
+            textAlign: 'center',
+            textAlignVertical: 'center'
         },
         card: {
             flex: 1,
@@ -174,7 +209,7 @@ export default function PageGraph({ navigation }) {
             padding: 20,
             top: 50,
             right: 40,
-            width: '60%'
+            width: '63%'
         },
         modal1Text: {
             margin: 4,
@@ -301,12 +336,13 @@ export default function PageGraph({ navigation }) {
             </View >
             <View style={styles.cardContainer}>
                 <ScrollView>
-                    <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
+                    <BlurView experimentalBlurMethod="dimezisBlurView"
+                        intensity={isPlaying ? 40 : 60} style={styles.card} tint='extraLight'>
                         <Text style={styles.contentText1}>지난 7일간의 과제 달성률은 <Text style={styles.contentText2}>{(averageAchiveNumD()) ? (averageAchiveNumD() * 100).toFixed(2) : "-"}%</Text> 입니다.</Text>
                         {(averageAchiveNumD > 0.8) ? <Text style={styles.contentText1}> 대단해요 !</Text> : null}
                     </BlurView>
-                    <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
-                        <View style={{ marginRight: 100 }}>
+                    <BlurView experimentalBlurMethod="dimezisBlurView" intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
+                        <View style={{ marginRight: 220 / 667 * Dimensions.get("window").width }}>
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={{ backgroundColor: theme[color].dddgrey, opacity: (showGraphDay ? 1 : 0.5), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, marginRight: 6 }}>
                                     <TouchableOpacity hitSlop={{ top: 10, bottom: 10, right: 5, left: 5 }} onPress={() => { setShowGraphDay(true); setShowGraphWeek(false); setShowGraphMonth(false) }}>
@@ -328,12 +364,12 @@ export default function PageGraph({ navigation }) {
                         {showGraphDay ? <GraphDay /> : showGraphWeek ? <View style={{ height: 190, justifyContent: 'center' }}><GraphWeek stat={stat} /></View> : <View style={{ height: 190, justifyContent: 'center' }}><GraphMonth stat={stat} /></View>}
                     </BlurView>
 
-                    <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
+                    <BlurView experimentalBlurMethod="dimezisBlurView" intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
                         <Text style={styles.contentText1}><Text style={styles.contentText2}> Focus 하여 해낸</Text> ToDo는 </Text>
                         <Text style={styles.contentText1}>지금까지 총 <Text style={styles.contentText2}>{totalFocus}개</Text>입니다.</Text>
                         {/*  <Text style={styles.contentText1}>연속 작업 일 수는 <Text style={styles.contentText2}>188</Text>일 입니다. </Text> */}
                     </BlurView>
-                    <BlurView intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
+                    <BlurView experimentalBlurMethod="dimezisBlurView" intensity={isPlaying ? 40 : 60} style={styles.card} tint={isPlaying ? 'systemThinMaterial' : 'extraLight'}>
                         <Text style={styles.contentText1}>현재 연속 <Text style={styles.contentText2}>{streak + 1}</Text>일째 작업중입니다.</Text>
                         {(streak > 29 ? <Text style={styles.contentText1}>잘 하고 있어요!</Text> : null)}
 
