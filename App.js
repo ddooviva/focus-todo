@@ -75,8 +75,9 @@ export function HomeScreen({ navigation }) {
   //  setToDos(testToDosZero); 
 
   useEffect(() => {
-    loadToDos();
-    saveTodayAsWorked();
+    AsyncStorage.clear
+    /*   loadToDos();
+      saveTodayAsWorked(); */
   }, [])
 
   useFocusEffect(
